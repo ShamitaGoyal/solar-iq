@@ -6,13 +6,15 @@ import { Seasonality } from "@/components/solariq/Seasonality";
 import { SavingsAtlas } from "@/components/solariq/SavingsAtlas";
 import { LineRace } from "@/components/solariq/LineRace";
 
-const SECTIONS = [
-  { label: "Home" },
-  { label: "Atlas" },
-  { label: "Calculator" },
-  { label: "Cities" },
-  { label: "Seasons" },
-  { label: "Installers" },
+// Nav dots map to visualization anchors; idx is the real section index in the scroll container.
+// Order: Hero(0) T1(1) T2(2) Atlas(3) T3(4) Calculator(5) T4(6) Cities(7) T5(8) Seasons(9) T6(10) LineRace(11)
+const NAV_SECTIONS = [
+  { label: "Home", idx: 0 },
+  { label: "Atlas", idx: 3 },
+  { label: "Calculator", idx: 5 },
+  { label: "Cities", idx: 7 },
+  { label: "Seasons", idx: 9 },
+  { label: "Installers", idx: 11 },
 ];
 
 export function SolarIQPage() {
@@ -32,11 +34,9 @@ export function SolarIQPage() {
     }
   };
 
-  // Track active section via IntersectionObserver on the scroll container
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
-
     const obs = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -47,17 +47,13 @@ export function SolarIQPage() {
             (e.target as HTMLElement).classList.add("siq-in");
           }
         });
-        // Also trigger fade-ins inside newly visible sections
         document.querySelectorAll<HTMLElement>(".siq-fade-in:not(.siq-show)").forEach((el) => {
           const rect = el.getBoundingClientRect();
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
-            el.classList.add("siq-show");
-          }
+          if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add("siq-show");
         });
       },
       { root, threshold: 0.45 },
     );
-
     sectionRefs.current.forEach((el) => el && obs.observe(el));
     return () => obs.disconnect();
   }, []);
@@ -70,14 +66,16 @@ export function SolarIQPage() {
     if (el) sectionRefs.current[i] = el;
   };
 
+  const activeNavIdx = NAV_SECTIONS.reduce((acc, s, i) => (activeIdx >= s.idx ? i : acc), 0);
+
   return (
     <div className="text-[color:var(--siq-fg-deep)]">
-      {/* Fixed nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex h-12 items-center justify-start bg-[color:var(--siq-cream)]/90 px-7 backdrop-blur-sm">
+      {/* Top navbar (SOLAR IQ + section links) — disabled for now
+      <nav className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-center bg-[color:var(--siq-cream)]/90 px-4 backdrop-blur-sm sm:px-7">
         <button
           type="button"
           onClick={() => scrollToSection(0)}
-          className="flex cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-left text-[13px] font-semibold tracking-[0.06em] text-[color:var(--siq-fg-deep)] outline-none transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-[color:var(--siq-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--siq-cream)]"
+          className="absolute left-4 top-1/2 z-10 flex -translate-y-1/2 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-left text-[13px] font-semibold tracking-[0.06em] text-[color:var(--siq-fg-deep)] outline-none transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-[color:var(--siq-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--siq-cream)] sm:left-7"
           aria-label="Go to home / hero"
         >
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--siq-fg)]">
@@ -91,14 +89,32 @@ export function SolarIQPage() {
           </div>
           SOLAR IQ
         </button>
-      </nav>
 
-      {/* Dot nav */}
+        <div className="flex max-w-[calc(100vw-9rem)] items-center gap-0.5 overflow-x-auto rounded-full bg-[color:var(--siq-fg)] px-2 py-1.5 shadow-[0_2px_14px_rgba(53,88,60,0.22)] [scrollbar-width:none] sm:max-w-none sm:gap-1 sm:px-4 sm:py-2 [&::-webkit-scrollbar]:hidden">
+          {NAV_SECTIONS.map((s, i) => {
+            const active = activeNavIdx === i;
+            return (
+              <button
+                key={s.label}
+                type="button"
+                onClick={() => scrollToSection(s.idx)}
+                className={`relative shrink-0 cursor-pointer rounded-full border-0 bg-transparent px-2.5 py-1.5 font-mono-siq text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--siq-cream)] transition-[color,opacity] after:pointer-events-none after:absolute after:bottom-1 after:left-2 after:right-2 after:block after:h-[2px] after:origin-left after:rounded-sm after:bg-[color:var(--siq-cream)] after:transition-transform after:duration-300 after:ease-out after:content-[''] sm:px-3.5 sm:text-[11px] sm:tracking-[0.14em] ${active ? "after:scale-x-100" : "after:scale-x-0 hover:opacity-90"
+                  }`}
+              >
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+      */}
+
       <div className="fixed right-5 top-1/2 z-50 -translate-y-1/2 flex flex-col gap-3">
-        {SECTIONS.map((s, i) => (
+        {NAV_SECTIONS.map((s, i) => (
           <button
-            key={i}
-            onClick={() => scrollToSection(i)}
+            key={s.label}
+            type="button"
+            onClick={() => scrollToSection(s.idx)}
             title={s.label}
             className="group relative flex items-center justify-end"
           >
@@ -108,18 +124,16 @@ export function SolarIQPage() {
             <span
               className="block rounded-full transition-all duration-300"
               style={{
-                width: activeIdx === i ? 10 : 6,
-                height: activeIdx === i ? 10 : 6,
-                background: activeIdx === i ? "var(--siq-fg)" : "rgba(53,88,60,0.3)",
+                width: activeNavIdx === i ? 10 : 6,
+                height: activeNavIdx === i ? 10 : 6,
+                background: activeNavIdx === i ? "var(--siq-fg)" : "rgba(53,88,60,0.3)",
               }}
             />
           </button>
         ))}
       </div>
 
-      {/* Scroll container */}
       <div ref={scrollRef} className="siq-scroll-root">
-
         {/* ── 0: HERO ── */}
         <section ref={setRef(0)} className="siq-snap-section siq-in bg-[color:var(--siq-cream)]">
           <div className="grid h-full grid-cols-1 pt-12 md:grid-cols-2">
@@ -131,7 +145,7 @@ export function SolarIQPage() {
                 </span>
               </div>
               <h1 className="siq-section-content mb-5 font-sans-siq text-[clamp(44px,5.5vw,60px)] font-normal leading-[0.98] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
-              See how much you could be saving homeowners with solar.
+                See how much you could be saving homeowners with solar.
               </h1>
               <p className="siq-section-content mb-8 max-w-[400px] text-[16px] leading-[1.75] text-[color:var(--siq-fg-muted)]">
                 Cross-reference real permit data, local irradiance scores, and utility rates to see exactly what you'd save.
@@ -180,36 +194,114 @@ export function SolarIQPage() {
           </div>
         </section>
 
-        {/* ── 1: ATLAS ── */}
-        <section ref={setRef(1)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+        {/* ── 1: TRANSITION 1 — Introducing Solar IQ (dark, centered) ── */}
+        <section ref={setRef(1)} className="siq-snap-section" style={{ background: "#1c2814" }}>
+          <div className="flex h-full flex-col items-center justify-center px-12 text-center">
+            <h2 className="siq-tc-title font-serif-siq text-[clamp(52px,7vw,94px)] font-normal leading-[1.05] tracking-[-0.02em] text-[#f0ede0]">
+              Introducing Solar IQ:
+            </h2>
+            <p className="siq-tc-sub mt-5 max-w-[600px] text-[clamp(20px,2.3vw,29px)] leading-[1.6] text-[#b8c4a0]">
+              Empowering Zenpower to rescue solar orphan homes
+            </p>
+          </div>
+        </section>
+
+        {/* ── 2: TRANSITION 2 — Atlas bridge (cream, left) ── */}
+        <section ref={setRef(2)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+          <div className="flex h-full flex-col justify-center px-16">
+            <h2 className="siq-tc-title font-serif-siq text-[clamp(40px,5.5vw,76px)] font-normal leading-[1.08] tracking-[-0.02em] text-[color:var(--siq-fg-deep)]">
+              See where savings stack up,
+              <br />
+              state by state.
+            </h2>
+            <p className="siq-tc-sub mt-6 max-w-[560px] text-[clamp(18px,2vw,24px)] leading-[1.65] text-[color:var(--siq-fg-muted)]">
+              The atlas blends permits and policy signals into one view of opportunity.
+            </p>
+          </div>
+        </section>
+
+        {/* ── 3: ATLAS ── */}
+        <section ref={setRef(3)} className="siq-snap-section bg-[color:var(--siq-cream)]">
           <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
             <SavingsAtlas />
           </div>
         </section>
 
-        {/* ── 2: CALCULATOR ── */}
-        <section ref={setRef(2)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+        {/* ── 4: TRANSITION 3 — Zero in on cities (cream, left) ── */}
+        <section ref={setRef(4)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+          <div className="flex h-full flex-col justify-center px-16">
+            <h2 className="siq-tc-title font-serif-siq text-[clamp(47px,6.5vw,86px)] font-normal leading-[1.08] tracking-[-0.02em] text-[color:var(--siq-fg-deep)]">
+              Zero in on the top five most
+              <br />
+              in-demand cities by total permits
+            </h2>
+          </div>
+        </section>
+
+        {/* ── 5: CALCULATOR ── */}
+        <section ref={setRef(5)} className="siq-snap-section bg-[color:var(--siq-cream)]">
           <div className="siq-section-content h-full pt-12">
             <SavingsCalculator />
           </div>
         </section>
 
-        {/* ── 3: CITY RANKINGS ── */}
-        <section ref={setRef(3)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+        {/* ── 6: TRANSITION 4 — Calculator → cities (cream, left) ── */}
+        <section ref={setRef(6)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+          <div className="flex h-full flex-col justify-center px-16">
+            <h2 className="siq-tc-title font-serif-siq text-[clamp(40px,5.5vw,76px)] font-normal leading-[1.08] tracking-[-0.02em] text-[color:var(--siq-fg-deep)]">
+              From statewide signals
+              <br />
+              to city streets.
+            </h2>
+          </div>
+        </section>
+
+        {/* ── 7: CITY RANKINGS ── */}
+        <section ref={setRef(7)} className="siq-snap-section bg-[color:var(--siq-cream)]">
           <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
             <CityRankings />
           </div>
         </section>
 
-        {/* ── 4: SEASONALITY ── */}
-        <section ref={setRef(4)} className="siq-snap-section" style={{ background: "#35583C" }}>
+        {/* ── 8: TRANSITION 5 — Capture customers (tan, left) ── */}
+        <section ref={setRef(8)} className="siq-snap-section" style={{ background: "#c8b89a" }}>
+          <div className="flex h-full flex-col justify-center px-16">
+            <h2 className="siq-tc-title font-serif-siq text-[clamp(47px,6.5vw,86px)] font-normal leading-[1.05] tracking-[-0.02em] text-[#2a2018]">
+              Capture customers
+              <br />
+              at the right time,
+              <br />
+              every time.
+            </h2>
+            <p className="siq-tc-sub mt-6 max-w-[580px] text-[clamp(20px,2.2vw,26px)] leading-[1.65] text-[#4a3828]">
+              Zenpower currently serves 4 states. See where to expand to next, based on per-capita annual savings.
+            </p>
+          </div>
+        </section>
+
+        {/* ── 9: SEASONALITY ── */}
+        <section ref={setRef(9)} className="siq-snap-section" style={{ background: "#35583C" }}>
           <div className="siq-section-content h-full pt-12">
             <Seasonality />
           </div>
         </section>
 
-        {/* ── 5: LINE RACE ── */}
-        <section ref={setRef(5)} className="siq-snap-section flex flex-col bg-[color:var(--siq-cream)]">
+        {/* ── 10: TRANSITION 6 — Seasons → installers (dark, left) ── */}
+        <section ref={setRef(10)} className="siq-snap-section" style={{ background: "#2a3824" }}>
+          <div className="flex h-full flex-col justify-center px-16">
+            <h2 className="siq-tc-title font-serif-siq text-[clamp(40px,5.5vw,76px)] font-normal leading-[1.06] tracking-[-0.02em] text-[#e8e6d8]">
+              Installers exit.
+              <br />
+              Permits tell the story.
+            </h2>
+            <p className="siq-tc-sub mt-6 max-w-[560px] text-[clamp(18px,2vw,24px)] leading-[1.65] text-[#a8b89e]">
+              Follow cumulative orphaned units as the market reshapes year over year.
+            </p>
+          </div>
+        </section>
+
+        {/* ── 11: LINE RACE ── */}
+        <section ref={setRef(11)} className="siq-snap-section flex flex-col bg-[color:var(--siq-cream)]">
           <div className="siq-section-content flex min-h-0 flex-1 flex-col pt-12">
             <LineRace />
           </div>
@@ -223,7 +315,6 @@ export function SolarIQPage() {
             </span>
           </footer>
         </section>
-
       </div>
 
       <style>{`
