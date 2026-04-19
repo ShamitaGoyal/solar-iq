@@ -4,27 +4,27 @@ import * as T from "three";
 // ─── CUSTOMISE HERE ──────────────────────────────────────────────────────────
 
 const COLORS = {
-  wall:       0xF0E5C8, // main building walls
-  wallBase:   0xe8d4a8, // base slab under the walls
-  roofLower:  0xb5523a, // darker underside / shadow layer of roof
-  roofUpper:  0xDD7359, // main visible roof colour
-  roofEdge:   0xe89060, // thin band between wall and roof
-  lawn:       0x70a771, // circular grass platform
-  path:       0xf2ead0, // front path strip
-  door:       0x6a8c70, // front door + railings
-  doorStep:   0x80a888, // step in front of door
-  doorKnob:   0xe0b850, // door handle
-  chimney:    0xc8b89c, // chimney shaft
+  wall: 0xF0E5C8, // main building walls
+  wallBase: 0xe8d4a8, // base slab under the walls
+  roofLower: 0xb5523a, // darker underside / shadow layer of roof
+  roofUpper: 0xDD7359, // main visible roof colour
+  roofEdge: 0xe89060, // thin band between wall and roof
+  lawn: 0x70a771, // circular grass platform
+  path: 0xf2ead0, // front path strip
+  door: 0x6a8c70, // front door + railings
+  doorStep: 0x80a888, // step in front of door
+  doorKnob: 0xe0b850, // door handle
+  chimney: 0xc8b89c, // chimney shaft
   chimneyCap: 0xb4a48c, // chimney cap slab
-  winFrame:   0xd8d0b8, // window frame + dividers
-  winGlass:   0xb8d4d8, // window glass (also set opacity below)
-  treeTrunk:  0xc4b894, // tree trunk
-  treeLo:     0x8fc88f, // lower/larger tree tier
-  treeHi:     0x70a771, // upper/smaller tree tier
-  bush:       0x9bcb9b, // round shrubs by the path
-  panelBase:  0x3a5a8c, // solar panel body (blue)
+  winFrame: 0xd8d0b8, // window frame + dividers
+  winGlass: 0xb8d4d8, // window glass (also set opacity below)
+  treeTrunk: 0xc4b894, // tree trunk
+  treeLo: 0x8fc88f, // lower/larger tree tier
+  treeHi: 0x70a771, // upper/smaller tree tier
+  bush: 0x9bcb9b, // round shrubs by the path
+  panelBase: 0x3a5a8c, // solar panel body (blue)
   panelFrame: 0xc8c8c8, // solar panel aluminium frame
-  panelCell:  0x2a4a7c, // individual cell lines on panel
+  panelCell: 0x2a4a7c, // individual cell lines on panel
 };
 
 // Roof slope: auto-calculated from the pyramid geometry.
@@ -34,6 +34,13 @@ const PANEL_SLOPE_MULTIPLIER = -0.8;
 
 // Window glass opacity (0 = invisible, 1 = solid)
 const WIN_GLASS_OPACITY = 0.8;
+
+/** Scale intro: 0 → 1 with a slight overshoot (Penner out-back). */
+function easeOutBack(x: number): number {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * (x - 1) ** 3 + c1 * (x - 1) ** 2;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -85,6 +92,10 @@ export function IsoHouse() {
     fill2.position.set(0, -1.5, 7);
     scene.add(fill2);
 
+    const houseRoot = new T.Group();
+    houseRoot.scale.setScalar(0.001);
+    scene.add(houseRoot);
+
     const mk = (
       geo: T.BufferGeometry,
       color: number,
@@ -98,7 +109,7 @@ export function IsoHouse() {
       m.position.set(x, y, z);
       m.castShadow = cast;
       m.receiveShadow = recv;
-      scene.add(m);
+      houseRoot.add(m);
       return m;
     };
 
@@ -107,20 +118,20 @@ export function IsoHouse() {
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.01;
     ground.receiveShadow = true;
-    scene.add(ground);
+    houseRoot.add(ground);
 
-    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), COLORS.lawn,     0,    -0.09, 0,   false, true);
-    mk(new T.BoxGeometry(0.9, 0.04, 2.5),              COLORS.path,     0,     0.03, 2.2, false, false);
-    mk(new T.BoxGeometry(4.2, 0.18, 3.5),              COLORS.wallBase, 0,     0.09, 0);
-    mk(new T.BoxGeometry(4.0, 2.1,  3.3),              COLORS.wall,     0,     1.14, 0);
-    mk(new T.BoxGeometry(4.2, 0.12, 3.5),              COLORS.roofEdge, 0,     2.25, 0);
+    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), COLORS.lawn, 0, -0.09, 0, false, true);
+    mk(new T.BoxGeometry(0.9, 0.04, 2.5), COLORS.path, 0, 0.03, 2.2, false, false);
+    mk(new T.BoxGeometry(4.2, 0.18, 3.5), COLORS.wallBase, 0, 0.09, 0);
+    mk(new T.BoxGeometry(4.0, 2.1, 3.3), COLORS.wall, 0, 1.14, 0);
+    mk(new T.BoxGeometry(4.2, 0.12, 3.5), COLORS.roofEdge, 0, 2.25, 0);
 
     const rg = new T.CylinderGeometry(0, 2.7, 1.45, 4, 1);
     rg.rotateY(Math.PI / 4);
     const roofM = new T.Mesh(rg, new T.MeshLambertMaterial({ color: COLORS.roofUpper }));
     roofM.position.set(0, 3.02, 0);
     roofM.castShadow = true;
-    scene.add(roofM);
+    houseRoot.add(roofM);
 
     const roofU = new T.Mesh(
       new T.CylinderGeometry(0, 2.75, 1.47, 4, 1),
@@ -128,36 +139,36 @@ export function IsoHouse() {
     );
     roofU.position.set(0, 3.01, 0);
     roofU.rotation.y = Math.PI / 4;
-    scene.add(roofU);
+    houseRoot.add(roofU);
 
-    mk(new T.BoxGeometry(0.38, 1.1,  0.38), COLORS.chimney,    -0.9, 3.18, -0.7);
-    mk(new T.BoxGeometry(0.44, 0.1,  0.44), COLORS.chimneyCap, -0.9, 3.75, -0.7);
+    mk(new T.BoxGeometry(0.38, 1.1, 0.38), COLORS.chimney, -0.9, 3.18, -0.7);
+    mk(new T.BoxGeometry(0.44, 0.1, 0.44), COLORS.chimneyCap, -0.9, 3.75, -0.7);
 
-    mk(new T.BoxGeometry(0.7,  1.18, 0.1),  COLORS.door,     0,     0.59, 1.71);
-    mk(new T.SphereGeometry(0.065, 8, 8),   COLORS.doorKnob, 0.25,  0.52, 1.78);
-    mk(new T.BoxGeometry(1.1,  0.07, 0.55), COLORS.doorStep, 0,     1.25, 1.88);
-    mk(new T.BoxGeometry(0.04, 0.32, 0.04), COLORS.door,    -0.48,  1.09, 1.72);
-    mk(new T.BoxGeometry(0.04, 0.32, 0.04), COLORS.door,     0.48,  1.09, 1.72);
+    mk(new T.BoxGeometry(0.7, 1.18, 0.1), COLORS.door, 0, 0.59, 1.71);
+    mk(new T.SphereGeometry(0.065, 8, 8), COLORS.doorKnob, 0.25, 0.52, 1.78);
+    mk(new T.BoxGeometry(1.1, 0.07, 0.55), COLORS.doorStep, 0, 1.25, 1.88);
+    mk(new T.BoxGeometry(0.04, 0.32, 0.04), COLORS.door, -0.48, 1.09, 1.72);
+    mk(new T.BoxGeometry(0.04, 0.32, 0.04), COLORS.door, 0.48, 1.09, 1.72);
 
     const addWin = (x: number, y: number, z: number, ry = 0) => {
       const off = ry === 0 ? 0.01 : 0;
-      const fr = new T.Mesh(new T.BoxGeometry(0.8,  0.65, 0.09), new T.MeshLambertMaterial({ color: COLORS.winFrame }));
-      fr.position.set(x, y, z); fr.rotation.y = ry; scene.add(fr);
-      const gl = new T.Mesh(new T.BoxGeometry(0.62, 0.5,  0.07), new T.MeshLambertMaterial({ color: COLORS.winGlass, transparent: true, opacity: WIN_GLASS_OPACITY }));
-      gl.position.set(x, y, z + off); gl.rotation.y = ry; scene.add(gl);
+      const fr = new T.Mesh(new T.BoxGeometry(0.8, 0.65, 0.09), new T.MeshLambertMaterial({ color: COLORS.winFrame }));
+      fr.position.set(x, y, z); fr.rotation.y = ry; houseRoot.add(fr);
+      const gl = new T.Mesh(new T.BoxGeometry(0.62, 0.5, 0.07), new T.MeshLambertMaterial({ color: COLORS.winGlass, transparent: true, opacity: WIN_GLASS_OPACITY }));
+      gl.position.set(x, y, z + off); gl.rotation.y = ry; houseRoot.add(gl);
       const hb = new T.Mesh(new T.BoxGeometry(0.64, 0.04, 0.08), new T.MeshLambertMaterial({ color: COLORS.winFrame }));
-      hb.position.set(x, y, z + off + 0.01); hb.rotation.y = ry; scene.add(hb);
+      hb.position.set(x, y, z + off + 0.01); hb.rotation.y = ry; houseRoot.add(hb);
       const vb = new T.Mesh(new T.BoxGeometry(0.04, 0.52, 0.08), new T.MeshLambertMaterial({ color: COLORS.winFrame }));
-      vb.position.set(x, y, z + off + 0.01); vb.rotation.y = ry; scene.add(vb);
+      vb.position.set(x, y, z + off + 0.01); vb.rotation.y = ry; houseRoot.add(vb);
     };
-    addWin(-1.05, 1.38,  1.71);
-    addWin( 1.05, 1.38,  1.71);
+    addWin(-1.05, 1.38, 1.71);
+    addWin(1.05, 1.38, 1.71);
     addWin(-1.05, 1.38, -1.71);
-    addWin( 1.05, 1.38, -1.71);
+    addWin(1.05, 1.38, -1.71);
     addWin(-2.07, 1.38, -0.45, Math.PI / 2);
-    addWin(-2.07, 1.38,  0.45, Math.PI / 2);
-    addWin( 2.07, 1.38, -0.45, Math.PI / 2);
-    addWin( 2.07, 1.38,  0.45, Math.PI / 2);
+    addWin(-2.07, 1.38, 0.45, Math.PI / 2);
+    addWin(2.07, 1.38, -0.45, Math.PI / 2);
+    addWin(2.07, 1.38, 0.45, Math.PI / 2);
 
     // Solar panels sit on the roof face surface.
     // slopeAngle matches the pyramid face exactly; panels are nudged down
@@ -168,10 +179,10 @@ export function IsoHouse() {
     // [posX, posY, posZ, faceYaw]
     // Dropped Y from 3.28 → 2.98 and pushed Z outward to sit on the slope.
     const panelDefs: [number, number, number, number][] = [
-      [-0.55, 2.74,  1.38, 0],
-      [ 0.55, 2.74,  1.38, 0],
+      [-0.55, 2.74, 1.38, 0],
+      [0.55, 2.74, 1.38, 0],
       [-0.55, 2.74, -1.38, Math.PI],
-      [ 0.55, 2.74, -1.38, Math.PI],
+      [0.55, 2.74, -1.38, Math.PI],
     ];
 
     panelDefs.forEach(([px, py, pz, faceYaw]) => {
@@ -205,26 +216,26 @@ export function IsoHouse() {
       g.rotation.y = faceYaw;
       g.rotation.x = -slopeAngle;
       g.position.set(px, py, pz);
-      scene.add(g);
+      houseRoot.add(g);
     });
 
     const addTree = (x: number, z: number, h = 1.3, r = 0.55) => {
       mk(new T.BoxGeometry(0.13, h * 0.5, 0.13), COLORS.treeTrunk, x, h * 0.25, z);
       const t1 = new T.Mesh(new T.CylinderGeometry(0, r, h * 0.72, 7, 1), new T.MeshLambertMaterial({ color: COLORS.treeLo }));
-      t1.position.set(x, h * 0.9, z); t1.castShadow = true; scene.add(t1);
+      t1.position.set(x, h * 0.9, z); t1.castShadow = true; houseRoot.add(t1);
       const t2 = new T.Mesh(new T.CylinderGeometry(0, r * 0.75, h * 0.58, 7, 1), new T.MeshLambertMaterial({ color: COLORS.treeHi }));
-      t2.position.set(x, h * 1.15, z); t2.castShadow = true; scene.add(t2);
+      t2.position.set(x, h * 1.15, z); t2.castShadow = true; houseRoot.add(t2);
     };
     addTree(-2.8, -0.3, 1.5, 0.62);
-    addTree(-3.1,  1.0, 1.0, 0.45);
-    addTree( 2.9, -0.5, 1.4, 0.58);
-    addTree( 3.2,  0.8, 0.95, 0.42);
+    addTree(-3.1, 1.0, 1.0, 0.45);
+    addTree(2.9, -0.5, 1.4, 0.58);
+    addTree(3.2, 0.8, 0.95, 0.42);
     addTree(-1.7, -2.8, 0.88, 0.38);
-    addTree( 1.7, -2.8, 0.82, 0.36);
+    addTree(1.7, -2.8, 0.82, 0.36);
 
-    [[-1.5, 1.95], [0, 2.0], [1.5, 1.95]].forEach(([sx, sz]) => {
+    [[-1.5, 1.95], [1.5, 1.95]].forEach(([sx, sz]) => {
       const s = new T.Mesh(new T.SphereGeometry(0.24, 8, 6), new T.MeshLambertMaterial({ color: COLORS.bush }));
-      s.position.set(sx, 0.2, sz); s.castShadow = true; scene.add(s);
+      s.position.set(sx, 0.2, sz); s.castShadow = true; houseRoot.add(s);
     });
 
     const pivot = new T.Group();
@@ -233,24 +244,31 @@ export function IsoHouse() {
     let prevX = 0;
     let rotY = 0;
 
-    const onDown   = (e: MouseEvent)  => { isDrag = true;  prevX = e.clientX; canvas.style.cursor = "grabbing"; };
-    const onUp     = ()               => { isDrag = false; canvas.style.cursor = "grab"; };
-    const onMove   = (e: MouseEvent)  => { if (!isDrag) return; rotY -= (e.clientX - prevX) * 0.009; prevX = e.clientX; pivot.rotation.y = rotY; };
-    const onTStart = (e: TouchEvent)  => { isDrag = true;  prevX = e.touches[0].clientX; };
-    const onTEnd   = ()               => { isDrag = false; };
-    const onTMove  = (e: TouchEvent)  => { if (!isDrag) return; rotY -= (e.touches[0].clientX - prevX) * 0.009; prevX = e.touches[0].clientX; pivot.rotation.y = rotY; };
+    const onDown = (e: MouseEvent) => { isDrag = true; prevX = e.clientX; canvas.style.cursor = "grabbing"; };
+    const onUp = () => { isDrag = false; canvas.style.cursor = "grab"; };
+    const onMove = (e: MouseEvent) => { if (!isDrag) return; rotY -= (e.clientX - prevX) * 0.009; prevX = e.clientX; pivot.rotation.y = rotY; };
+    const onTStart = (e: TouchEvent) => { isDrag = true; prevX = e.touches[0].clientX; };
+    const onTEnd = () => { isDrag = false; };
+    const onTMove = (e: TouchEvent) => { if (!isDrag) return; rotY -= (e.touches[0].clientX - prevX) * 0.009; prevX = e.touches[0].clientX; pivot.rotation.y = rotY; };
 
-    canvas.addEventListener("mousedown",  onDown);
-    window.addEventListener("mouseup",    onUp);
-    window.addEventListener("mousemove",  onMove);
+    canvas.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("mousemove", onMove);
     canvas.addEventListener("touchstart", onTStart, { passive: true });
-    canvas.addEventListener("touchend",   onTEnd);
-    canvas.addEventListener("touchmove",  onTMove,  { passive: true });
+    canvas.addEventListener("touchend", onTEnd);
+    canvas.addEventListener("touchmove", onTMove, { passive: true });
     canvas.style.cursor = "grab";
+
+    const introStart = performance.now();
+    const introMs = 920;
 
     let raf = 0;
     const animate = () => {
       raf = requestAnimationFrame(animate);
+      const introT = Math.min(1, (performance.now() - introStart) / introMs);
+      const s = Math.max(0.001, easeOutBack(introT));
+      houseRoot.scale.setScalar(s);
+
       if (!isDrag) pivot.rotation.y += 0.004;
       const ry = pivot.rotation.y;
       camera.position.set(Math.sin(ry) * 14, 9, Math.cos(ry) * 14);
@@ -271,13 +289,13 @@ export function IsoHouse() {
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize",     onResize);
-      canvas.removeEventListener("mousedown",  onDown);
-      window.removeEventListener("mouseup",    onUp);
-      window.removeEventListener("mousemove",  onMove);
+      window.removeEventListener("resize", onResize);
+      canvas.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("mousemove", onMove);
       canvas.removeEventListener("touchstart", onTStart);
-      canvas.removeEventListener("touchend",   onTEnd);
-      canvas.removeEventListener("touchmove",  onTMove);
+      canvas.removeEventListener("touchend", onTEnd);
+      canvas.removeEventListener("touchmove", onTMove);
       renderer.dispose();
     };
   }, []);
