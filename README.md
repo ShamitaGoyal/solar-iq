@@ -41,6 +41,8 @@ Our Python pipeline (`pipeline.py`) runs seven analytical queries against the cl
 
 The savings formula is: `avg_kw x tilt_annual x 365 x 0.80 x electricity_rate`, where tilt_annual is the optimal-tilt irradiance from NREL serving as a proxy for peak sun hours, and 0.80 accounts for real-world system losses.
 
+[`data/output/DATA_DICTIONARY.md`](data/output/DATA_DICTIONARY.md) documents every pipeline output file — what it contains, which raw sources it was built from, and which files are actually consumed by the site versus produced only for analysis. [`data/output/VISUALIZATION_DATA_MAP.md`](data/output/VISUALIZATION_DATA_MAP.md) traces each visualization on the site back to the exact data columns that power it, making it easy to understand what drives every number on screen.
+
 **Tech Stack**
 **Data**
 - Python
