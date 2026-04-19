@@ -62,35 +62,35 @@ export function IsoHouse() {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), 0xb8d4b8, 0, -0.09, 0, false, true);
-    mk(new T.BoxGeometry(0.9, 0.04, 2.5), 0xd4c9a8, 0, 0.03, 2.2, false, false);
-    mk(new T.BoxGeometry(4.2, 0.18, 3.5), 0xc0b090, 0, 0.09, 0);
-    mk(new T.BoxGeometry(4.0, 2.1, 3.3), 0xe8dfc8, 0, 1.14, 0);
-    mk(new T.BoxGeometry(4.2, 0.12, 3.5), 0xb89870, 0, 2.25, 0);
+    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), 0xd8e8d8, 0, -0.09, 0, false, true);
+    mk(new T.BoxGeometry(0.9, 0.04, 2.5), 0xeae0c4, 0, 0.03, 2.2, false, false);
+    mk(new T.BoxGeometry(4.2, 0.18, 3.5), 0xdccfb4, 0, 0.09, 0);
+    mk(new T.BoxGeometry(4.0, 2.1, 3.3), 0xf4ecdc, 0, 1.14, 0);
+    mk(new T.BoxGeometry(4.2, 0.12, 3.5), 0xd6b898, 0, 2.25, 0);
 
     const rg = new T.CylinderGeometry(0, 2.7, 1.45, 4, 1);
     rg.rotateY(Math.PI / 4);
-    const roofM = new T.Mesh(rg, new T.MeshLambertMaterial({ color: 0xb86848 }));
+    const roofM = new T.Mesh(rg, new T.MeshLambertMaterial({ color: 0xe89880 }));
     roofM.position.set(0, 3.02, 0);
     roofM.castShadow = true;
     scene.add(roofM);
     const roofU = new T.Mesh(
       new T.CylinderGeometry(0, 2.75, 1.47, 4, 1),
-      new T.MeshLambertMaterial({ color: 0x985040 }),
+      new T.MeshLambertMaterial({ color: 0xc88478 }),
     );
     roofU.position.set(0, 3.01, 0);
     roofU.rotation.y = Math.PI / 4;
     scene.add(roofU);
 
-    mk(new T.BoxGeometry(0.38, 1.1, 0.38), 0xb0a080, -0.9, 3.18, -0.7);
-    mk(new T.BoxGeometry(0.44, 0.1, 0.44), 0x988870, -0.9, 3.75, -0.7);
+    mk(new T.BoxGeometry(0.38, 1.1, 0.38), 0xc8b89c, -0.9, 3.18, -0.7);
+    mk(new T.BoxGeometry(0.44, 0.1, 0.44), 0xb4a48c, -0.9, 3.75, -0.7);
 
-    mk(new T.BoxGeometry(0.7, 1.18, 0.1), 0x35583c, 0, 0.59, 1.71);
-    mk(new T.SphereGeometry(0.065, 8, 8), 0xc89828, 0.25, 0.52, 1.78);
+    mk(new T.BoxGeometry(0.7, 1.18, 0.1), 0x6a8c70, 0, 0.59, 1.71);
+    mk(new T.SphereGeometry(0.065, 8, 8), 0xe0b850, 0.25, 0.52, 1.78);
 
-    mk(new T.BoxGeometry(1.1, 0.07, 0.55), 0x4a7a52, 0, 1.25, 1.88);
-    mk(new T.BoxGeometry(0.04, 0.32, 0.04), 0x35583c, -0.48, 1.09, 1.72);
-    mk(new T.BoxGeometry(0.04, 0.32, 0.04), 0x35583c, 0.48, 1.09, 1.72);
+    mk(new T.BoxGeometry(1.1, 0.07, 0.55), 0x80a888, 0, 1.25, 1.88);
+    mk(new T.BoxGeometry(0.04, 0.32, 0.04), 0x6a8c70, -0.48, 1.09, 1.72);
+    mk(new T.BoxGeometry(0.04, 0.32, 0.04), 0x6a8c70, 0.48, 1.09, 1.72);
 
     const addWin = (x: number, y: number, z: number, ry = 0) => {
       const fr = new T.Mesh(
@@ -102,7 +102,7 @@ export function IsoHouse() {
       scene.add(fr);
       const gl = new T.Mesh(
         new T.BoxGeometry(0.62, 0.5, 0.07),
-        new T.MeshLambertMaterial({ color: 0x90b8c0, transparent: true, opacity: 0.8 }),
+        new T.MeshLambertMaterial({ color: 0xb8d4d8, transparent: true, opacity: 0.8 }),
       );
       gl.position.set(x, y, z + (ry === 0 ? 0.01 : 0));
       gl.rotation.y = ry;
@@ -132,24 +132,24 @@ export function IsoHouse() {
     addWin(2.07, 1.38, 0.45, Math.PI / 2);
 
     const panelData: [number, number, number][] = [
-      [-0.82, 2.88, -0.58],
-      [0.0, 2.88, -0.58],
-      [0.82, 2.88, -0.58],
-      [-0.82, 2.77, 0.12],
-      [0.0, 2.77, 0.12],
-      [0.82, 2.77, 0.12],
+      [-0.82, 3.55, -0.55],
+      [0.0, 3.55, -0.55],
+      [0.82, 3.55, -0.55],
+      [-0.82, 3.4, 0.2],
+      [0.0, 3.4, 0.2],
+      [0.82, 3.4, 0.2],
     ];
     const panels = panelData.map(([px, py, pz]) => {
       const g = new T.Group();
       const base = new T.Mesh(
         new T.BoxGeometry(0.72, 0.05, 0.48),
-        new T.MeshLambertMaterial({ color: 0x2a3d5a }),
+        new T.MeshLambertMaterial({ color: 0x4a6488 }),
       );
       base.castShadow = true;
       g.add(base);
       const frame = new T.Mesh(
         new T.BoxGeometry(0.74, 0.045, 0.5),
-        new T.MeshLambertMaterial({ color: 0x707070 }),
+        new T.MeshLambertMaterial({ color: 0xa8a8a8 }),
       );
       frame.position.y = -0.003;
       g.add(frame);
@@ -157,29 +157,29 @@ export function IsoHouse() {
         for (let cj = 0; cj < 2; cj++) {
           const cell = new T.Mesh(
             new T.BoxGeometry(0.2, 0.055, 0.19),
-            new T.MeshLambertMaterial({ color: 0x192c48 }),
+            new T.MeshLambertMaterial({ color: 0x35507c }),
           );
           cell.position.set(-0.22 + ci * 0.22, 0.005, -0.095 + cj * 0.19);
           g.add(cell);
         }
       g.position.set(px, py, pz);
-      g.rotation.x = -0.27;
+      g.rotation.x = -0.4;
       scene.add(g);
       return g;
     });
 
     const addTree = (x: number, z: number, h = 1.3, r = 0.55) => {
-      mk(new T.BoxGeometry(0.13, h * 0.5, 0.13), 0xa09870, x, h * 0.25, z);
+      mk(new T.BoxGeometry(0.13, h * 0.5, 0.13), 0xc4b894, x, h * 0.25, z);
       const t1 = new T.Mesh(
         new T.CylinderGeometry(0, r, h * 0.72, 7, 1),
-        new T.MeshLambertMaterial({ color: 0x7aaa7e }),
+        new T.MeshLambertMaterial({ color: 0xa8c8a8 }),
       );
       t1.position.set(x, h * 0.9, z);
       t1.castShadow = true;
       scene.add(t1);
       const t2 = new T.Mesh(
         new T.CylinderGeometry(0, r * 0.75, h * 0.58, 7, 1),
-        new T.MeshLambertMaterial({ color: 0x5a8a60 }),
+        new T.MeshLambertMaterial({ color: 0x88b090 }),
       );
       t2.position.set(x, h * 1.15, z);
       t2.castShadow = true;
@@ -199,7 +199,7 @@ export function IsoHouse() {
     ].forEach(([sx, sz]) => {
       const s = new T.Mesh(
         new T.SphereGeometry(0.24, 8, 6),
-        new T.MeshLambertMaterial({ color: 0x90c090 }),
+        new T.MeshLambertMaterial({ color: 0xb8d8b8 }),
       );
       s.position.set(sx, 0.2, sz);
       s.castShadow = true;
