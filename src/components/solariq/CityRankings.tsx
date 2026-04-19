@@ -26,7 +26,6 @@ export function CityRankings() {
 
   const top5 = useMemo(() => {
     if (!state) return [];
-    // Deduplicate by city name, keeping the entry with highest install_count
     const byCity = new Map<string, (typeof RAW_DATA)[number]>();
     for (const d of RAW_DATA.filter((d) => d.state === state)) {
       const existing = byCity.get(d.city);
@@ -79,8 +78,11 @@ export function CityRankings() {
   }, [top5]);
 
   return (
-    <section className="siq-fade-in flex min-h-0 flex-1 flex-col overflow-hidden border-b border-[rgba(53,88,60,0.2)] px-12 py-6 pb-10">
-      <div className="mb-6 shrink-0 flex flex-wrap items-baseline justify-between gap-4 border-b border-[rgba(53,88,60,0.2)] pb-4">
+    // KEY FIX: removed `min-h-0 flex-1` — these were causing the section to be
+    // capped at the snap-scroll viewport height, clipping the summary strip.
+    // Now the section grows to its natural content height and scrolls freely.
+    <section className="siq-fade-in flex flex-col overflow-y-auto border-b border-[rgba(53,88,60,0.2)] px-12 py-6 pb-16">
+      <div className="mb-6 flex shrink-0 flex-wrap items-baseline justify-between gap-4 border-b border-[rgba(53,88,60,0.2)] pb-4">
         <div>
           <p className="mb-1 text-[13px] uppercase tracking-[0.25em] text-[color:var(--siq-fg)]">
             City rankings
@@ -91,7 +93,7 @@ export function CityRankings() {
         </div>
       </div>
 
-      <div className="mb-5 shrink-0 flex flex-wrap items-center gap-6">
+      <div className="mb-5 flex shrink-0 flex-wrap items-center gap-6">
         <div className="relative">
           <select
             value={state}
@@ -126,62 +128,60 @@ export function CityRankings() {
         </div>
       ) : (
         <>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-1">
-            <div className="flex flex-col">
-              {top5.map((d, i) => {
-                const kwLabel =
-                  d.total_kw_installed >= 1000
-                    ? (d.total_kw_installed / 1000).toFixed(2) + " megawatts"
-                    : d.total_kw_installed.toFixed(2) + " kilowatts";
-                const visible = i < visibleRows;
-                return (
-                  <div
-                    key={`${d.city}-${i}`}
-                    className="group grid grid-cols-[2rem_1fr_auto] items-center gap-6 border-b border-[rgba(53,88,60,0.12)] py-4 transition-all duration-500"
-                    style={{
-                      opacity: visible ? 1 : 0,
-                      transform: visible ? "translateX(0)" : "translateX(-20px)",
-                    }}
-                  >
-                    <span className="font-sans-siq text-[1.2rem] text-right text-[rgba(53,88,60,0.4)]">
-                      {i + 1}
+          <div className="flex flex-col">
+            {top5.map((d, i) => {
+              const kwLabel =
+                d.total_kw_installed >= 1000
+                  ? (d.total_kw_installed / 1000).toFixed(2) + " megawatts"
+                  : d.total_kw_installed.toFixed(2) + " kilowatts";
+              const visible = i < visibleRows;
+              return (
+                <div
+                  key={`${d.city}-${i}`}
+                  className="group grid grid-cols-[2rem_1fr_auto] items-center gap-6 border-b border-[rgba(53,88,60,0.12)] py-4 transition-all duration-500"
+                  style={{
+                    opacity: visible ? 1 : 0,
+                    transform: visible ? "translateX(0)" : "translateX(-20px)",
+                  }}
+                >
+                  <span className="font-sans-siq text-[1.2rem] text-right text-[rgba(53,88,60,0.4)]">
+                    {i + 1}
+                  </span>
+                  <div className="flex min-w-0 flex-col gap-2.5">
+                    <span className="truncate font-sans-siq text-[1.4rem] text-[color:var(--siq-fg-deep)]">
+                      {d.city}
                     </span>
-                    <div className="flex min-w-0 flex-col gap-2.5">
-                      <span className="truncate font-sans-siq text-[1.4rem] text-[color:var(--siq-fg-deep)]">
-                        {d.city}
-                      </span>
-                      <div className="relative h-2.5 cursor-pointer bg-[rgba(53,88,60,0.12)]">
-                        <div
-                          className="relative h-full overflow-visible bg-[color:var(--siq-fg)] transition-[width] duration-[900ms] ease-out"
-                          style={{ width: `${barFills[i] ?? 0}%` }}
-                        >
-                          <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 whitespace-nowrap bg-[color:var(--siq-fg)] px-3 py-2 font-mono-siq text-[13px] tracking-[0.08em] text-[color:var(--siq-cream)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            ⚡ {kwLabel}
-                            <span
-                              className="absolute left-1/2 top-full -translate-x-1/2 border-[5px] border-transparent"
-                              style={{ borderTopColor: "var(--siq-fg)" }}
-                            />
-                          </div>
+                    <div className="relative h-2.5 cursor-pointer bg-[rgba(53,88,60,0.12)]">
+                      <div
+                        className="relative h-full overflow-visible bg-[color:var(--siq-fg)] transition-[width] duration-[900ms] ease-out"
+                        style={{ width: `${barFills[i] ?? 0}%` }}
+                      >
+                        <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 whitespace-nowrap bg-[color:var(--siq-fg)] px-3 py-2 font-mono-siq text-[13px] tracking-[0.08em] text-[color:var(--siq-cream)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          ⚡ {kwLabel}
+                          <span
+                            className="absolute left-1/2 top-full -translate-x-1/2 border-[5px] border-transparent"
+                            style={{ borderTopColor: "var(--siq-fg)" }}
+                          />
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="font-sans-siq text-[2rem] leading-none text-[color:var(--siq-fg-deep)]">
-                        {fmtNum(d.install_count)}
-                      </span>
-                      <span className="text-[12px] uppercase tracking-[0.2em] text-[rgba(26,26,24,0.45)]">
-                        Permits
-                      </span>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="font-sans-siq text-[2rem] leading-none text-[color:var(--siq-fg-deep)]">
+                      {fmtNum(d.install_count)}
+                    </span>
+                    <span className="text-[12px] uppercase tracking-[0.2em] text-[rgba(26,26,24,0.45)]">
+                      Permits
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {summary && (
             <div
-              className="mt-6 shrink-0 grid border border-[rgba(53,88,60,0.2)] transition-all duration-700 ease-out"
+              className="mt-6 grid border border-[rgba(53,88,60,0.2)] transition-all duration-700 ease-out"
               style={{
                 gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
                 opacity: stripVisible ? 1 : 0,

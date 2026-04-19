@@ -335,7 +335,7 @@ export function SavingsAtlas() {
   const hoveredData = hover ? STATE_SAVINGS_DATA[hover] : null;
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col border-t border-[var(--siq-border-strong)] bg-[color:var(--siq-cream)] px-10 pb-12 pt-6">
+    <section className="flex min-h-0 flex-1 flex-col border-t border-[var(--siq-border-strong)] bg-[color:var(--siq-cream)] px-10 pb-16 pt-6">
       {/* Header */}
       <div className="siq-fade-in mb-4 flex shrink-0 flex-wrap items-end justify-between gap-4 border-b border-[var(--siq-border)] pb-4">
         <div>
@@ -398,7 +398,7 @@ export function SavingsAtlas() {
         {/* ── NATIONAL VIEW ── */}
         {!selectedState && (
           <div ref={wrapRef} className="relative flex min-h-0 flex-col">
-            <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full" style={{ maxHeight: "clamp(300px, calc(100vh - 280px), 530px)" }}>
+            <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full" style={{ maxHeight: "clamp(280px, calc(100vh - 340px), 510px)" }}>
               <defs>
                 <pattern id="hatch" patternUnits="userSpaceOnUse" width={5} height={5} patternTransform="rotate(45)">
                   <line x1={0} y1={0} x2={0} y2={5} stroke="rgba(53,88,60,0.18)" strokeWidth={1.6} />
@@ -522,7 +522,7 @@ export function SavingsAtlas() {
               viewBox={`0 0 ${SVG_W} ${SVG_H}`}
               className="w-full border border-[rgba(53,88,60,0.1)]"
               style={{
-                maxHeight: "clamp(300px, calc(100vh - 280px), 530px)",
+                maxHeight: "clamp(280px, calc(100vh - 340px), 510px)",
                 cursor: zoom > 1 ? (dragging ? "grabbing" : "grab") : "default",
                 background: "#f8f6ed",
               }}
@@ -552,7 +552,7 @@ export function SavingsAtlas() {
                   );
                 })()}
 
-                {stateZipEntries && stateProj && stateZipEntries.map((z) => {
+                {stateZipEntries && stateProj && [...stateZipEntries].reverse().map((z) => {
                   const [lat, lon] = z.centroid;
                   const pt = stateProj([lon, lat]);
                   if (!pt) return null;
@@ -654,8 +654,8 @@ export function SavingsAtlas() {
                 <div className="shrink-0 text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">
                   Top 10 · Per Capita
                 </div>
-                <div className="max-h-[min(440px,62vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5 md:max-h-none md:min-h-0 md:flex-1">
-                  <div className="space-y-2 pb-6">
+                <div className="max-h-[min(220px,28vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5">
+                  <div className="space-y-2 pb-4">
                     {ranked.map(([state, v], i) => {
                       const w = (v.pc / max) * 100;
                       return (
@@ -712,8 +712,8 @@ export function SavingsAtlas() {
                 <div className="shrink-0 text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">
                   Top ZIPs · Est. Savings/Yr
                 </div>
-                <div className="max-h-[min(360px,52vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5 md:max-h-none md:min-h-0 md:flex-1">
-                  <div className="space-y-2 pb-3">
+                <div className="max-h-[min(220px,28vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5">
+                  <div className="space-y-2 pb-4">
                     {(stateZipEntries ?? []).slice(0, 15).map((z, i) => {
                       const w = zipMax === zipMin ? 50 : ((z.savings - zipMin) / (zipMax - zipMin)) * 100;
                       const isHov = hoveredZip === z.zip;
