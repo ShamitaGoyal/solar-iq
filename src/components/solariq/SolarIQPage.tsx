@@ -3,6 +3,7 @@ import { IsoHouse } from "@/components/solariq/IsoHouse";
 import { useFadeIn } from "@/components/solariq/useFadeIn";
 import { SavingsCalculator } from "@/components/solariq/SavingsCalculator";
 import { CityRankings } from "@/components/solariq/CityRankings";
+import { Seasonality } from "@/components/solariq/Seasonality";
 
 export function SolarIQPage() {
   useFadeIn();
@@ -93,6 +94,9 @@ export function SolarIQPage() {
 
       {/* CITY RANKINGS (vis3) */}
       <CityRankings />
+
+      {/* SEASONALITY (vis4) */}
+      <Seasonality />
 
       {/* FOOTER */}
       <footer className="flex items-center justify-between px-13 py-5">

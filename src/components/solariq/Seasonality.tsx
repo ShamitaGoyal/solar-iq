@@ -1,0 +1,235 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Cell,
+} from "recharts";
+
+const SEASON_DATA = [
+  { month: 1, name: "Jan", installs: 9161 },
+  { month: 2, name: "Feb", installs: 8706 },
+  { month: 3, name: "Mar", installs: 10298 },
+  { month: 4, name: "Apr", installs: 10462 },
+  { month: 5, name: "May", installs: 10775 },
+  { month: 6, name: "Jun", installs: 12028 },
+  { month: 7, name: "Jul", installs: 12090 },
+  { month: 8, name: "Aug", installs: 13265 },
+  { month: 9, name: "Sep", installs: 12500 },
+  { month: 10, name: "Oct", installs: 14029 },
+  { month: 11, name: "Nov", installs: 12878 },
+  { month: 12, name: "Dec", installs: 12616 },
+];
+
+const SEASONS: Record<string, { months: number[]; color: string; label: string; bandColor: string }> = {
+  Winter: { months: [12, 1, 2], color: "#8bafd4", label: "Dec · Jan · Feb", bandColor: "rgba(139,175,212,0.55)" },
+  Spring: { months: [3, 4, 5], color: "#a8e890", label: "Mar · Apr · May", bandColor: "rgba(168,232,144,0.45)" },
+  Summer: { months: [6, 7, 8], color: "#d4a84b", label: "Jun · Jul · Aug", bandColor: "rgba(212,168,75,0.55)" },
+  Fall: { months: [9, 10, 11], color: "#c87a40", label: "Sep · Oct · Nov", bandColor: "rgba(200,122,64,0.55)" },
+};
+
+const SEASON_BY_MONTH: Record<number, string> = {};
+Object.entries(SEASONS).forEach(([s, v]) => v.months.forEach((m) => (SEASON_BY_MONTH[m] = s)));
+
+const installs = SEASON_DATA.map((d) => d.installs);
+const maxVal = Math.max(...installs);
+const movingAvg = installs.map((v, i) => {
+  const prev = installs[(i + 11) % 12];
+  const next = installs[(i + 1) % 12];
+  return Math.round((prev + v + next) / 3);
+});
+
+const chartData = SEASON_DATA.map((d, i) => ({
+  name: d.name,
+  installs: d.installs,
+  avg: movingAvg[i],
+  color: SEASONS[SEASON_BY_MONTH[d.month]].color,
+  isMax: d.installs === maxVal,
+}));
+
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div
+      className="rounded border px-4 py-3 font-mono-siq text-[11px]"
+      style={{
+        background: "#1e3325",
+        borderColor: "rgba(255,255,255,0.1)",
+        color: "#FCFAEF",
+      }}
+    >
+      <div className="mb-2 font-serif-siq text-[17px]">{label}</div>
+      {payload.map((p: any) => (
+        <div key={p.dataKey} className="mt-1 flex items-center justify-between gap-6">
+          <span className="flex items-center text-[10px] uppercase tracking-[0.08em] text-[rgba(252,250,239,0.45)]">
+            <span
+              className="mr-2 inline-block h-2 w-2 rounded-full"
+              style={{ background: p.color || p.payload.color }}
+            />
+            {p.name}
+          </span>
+          <span className="font-medium text-[#a8e890]">{p.value.toLocaleString()}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SeasonBubble({ name, season, delay }: { name: string; season: typeof SEASONS[string]; delay: number }) {
+  const [visible, setVisible] = useState(false);
+  const [typedLabel, setTypedLabel] = useState("");
+  const [doneTyping, setDoneTyping] = useState(false);
+  const [count, setCount] = useState(0);
+
+  const months = season.months.map((m) => SEASON_DATA.find((x) => x.month === m)?.installs || 0);
+  const avg = Math.round(months.reduce((a, b) => a + b, 0) / months.length);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  useEffect(() => {
+    if (!visible) return;
+    let i = 0;
+    const tick = () => {
+      if (i < season.label.length) {
+        setTypedLabel(season.label.slice(0, i + 1));
+        i++;
+        setTimeout(tick, 38);
+      } else {
+        setDoneTyping(true);
+        // count up
+        const start = Date.now();
+        const dur = 900;
+        const step = () => {
+          const elapsed = Date.now() - start;
+          const p = Math.min(elapsed / dur, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          setCount(Math.round(ease * avg));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        step();
+      }
+    };
+    tick();
+  }, [visible, season.label, avg]);
+
+  return (
+    <div
+      className="flex-1 rounded-2xl border px-[22px] py-5 transition-all duration-500"
+      style={{
+        minWidth: 180,
+        background: "#2a4530",
+        borderColor: "rgba(255,255,255,0.1)",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(12px)",
+      }}
+    >
+      <div className="mb-2.5 flex items-center gap-2">
+        <div className="h-[9px] w-[9px] shrink-0 rounded-full" style={{ background: season.color }} />
+        <div className="text-[9px] uppercase tracking-[0.2em] text-[rgba(255,255,255,0.45)]">{name}</div>
+      </div>
+      <div className="mb-3 min-h-[1.4em] text-[11px] text-[rgba(255,255,255,0.7)]">
+        {typedLabel}
+        {!doneTyping && <span className="ml-px animate-pulse text-[#a8e890]">|</span>}
+      </div>
+      <div className="mb-3 h-px bg-[rgba(255,255,255,0.08)]" />
+      <div className="font-serif-siq text-[28px] leading-none text-[#a8e890]">
+        {count > 0 ? count.toLocaleString() : "—"}
+      </div>
+      <div className="mt-1 text-[8px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.35)]">
+        Avg monthly installs
+      </div>
+    </div>
+  );
+}
+
+export function Seasonality() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setInView(true)),
+      { threshold: 0.15 },
+    );
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <section className="font-mono-siq" style={{ background: "#35583C", color: "#FCFAEF" }}>
+      <div className="mx-auto max-w-[1300px] px-[60px] py-[80px]">
+        <div className="siq-fade-in border-b pb-6" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
+          <h2 className="font-serif-siq text-[clamp(30px,4vw,52px)] font-normal leading-[1.05]">
+            Install <em className="italic text-[#a8e890]">Volume</em> by Month
+          </h2>
+        </div>
+
+        <div
+          ref={ref}
+          className="siq-fade-in mt-7 border"
+          style={{ background: "#2a4530", borderColor: "rgba(255,255,255,0.08)" }}
+        >
+          {/* Season strip */}
+          <div className="grid h-[6px] grid-cols-12 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+            {SEASON_DATA.map((d) => (
+              <div key={d.month} style={{ background: SEASONS[SEASON_BY_MONTH[d.month]].bandColor }} />
+            ))}
+          </div>
+
+          <div style={{ width: "100%", height: 400 }}>
+            {inView && (
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={chartData} margin={{ top: 28, right: 30, bottom: 16, left: 30 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "rgba(255,255,255,0.55)", fontFamily: "DM Mono, monospace", fontSize: 11 }}
+                    axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
+                    tickLine={{ stroke: "rgba(255,255,255,0.1)" }}
+                  />
+                  <YAxis
+                    tick={{ fill: "rgba(255,255,255,0.45)", fontFamily: "DM Mono, monospace", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`)}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+                  <Bar dataKey="installs" name="Installs" barSize={32} radius={[2, 2, 0, 0]}>
+                    {chartData.map((d, i) => (
+                      <Cell key={i} fill={d.color} fillOpacity={d.isMax ? 1 : 0.68} />
+                    ))}
+                  </Bar>
+                  <Line
+                    type="monotone"
+                    dataKey="avg"
+                    name="3-Mo Avg"
+                    stroke="rgba(255,255,255,0.45)"
+                    strokeWidth={1.5}
+                    strokeDasharray="4 4"
+                    dot={{ r: 3, fill: "rgba(255,255,255,0.7)", stroke: "#2a4530", strokeWidth: 2 }}
+                    activeDot={{ r: 5 }}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        <div className="siq-fade-in mt-7 flex flex-wrap gap-3.5">
+          {Object.entries(SEASONS).map(([name, s], idx) => (
+            <SeasonBubble key={name} name={name} season={s} delay={inView ? 600 + idx * 220 : 99999} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
