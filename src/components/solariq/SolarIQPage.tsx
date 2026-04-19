@@ -4,6 +4,8 @@ import { useFadeIn } from "@/components/solariq/useFadeIn";
 import { SavingsCalculator } from "@/components/solariq/SavingsCalculator";
 import { CityRankings } from "@/components/solariq/CityRankings";
 import { Seasonality } from "@/components/solariq/Seasonality";
+import { SavingsAtlas } from "@/components/solariq/SavingsAtlas";
+import { LineRace } from "@/components/solariq/LineRace";
 
 export function SolarIQPage() {
   useFadeIn();
@@ -89,6 +91,9 @@ export function SolarIQPage() {
         </div>
       </section>
 
+      {/* NATIONAL ATLAS (vis1) */}
+      <SavingsAtlas />
+
       {/* SAVINGS CALCULATOR (vis2) */}
       <SavingsCalculator />
 
@@ -97,6 +102,9 @@ export function SolarIQPage() {
 
       {/* SEASONALITY (vis4) */}
       <Seasonality />
+
+      {/* LINE RACE (vis5) */}
+      <LineRace />
 
       {/* FOOTER */}
       <footer className="flex items-center justify-between px-13 py-5">
