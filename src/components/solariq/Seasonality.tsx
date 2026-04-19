@@ -51,7 +51,7 @@ function CustomTooltip({ active, payload, label }: any) {
         color: "#FCFAEF",
       }}
     >
-      <div className="mb-2 font-serif-siq text-[17px]">{label}</div>
+      <div className="mb-2 font-sans-siq text-[17px]">{label}</div>
       {payload.map((p: any) => (
         <div key={p.dataKey} className="mt-1 flex items-center justify-between gap-6">
           <span className="flex items-center text-[13px] uppercase tracking-[0.08em] text-[rgba(252,250,239,0.45)]">
@@ -128,7 +128,7 @@ function SeasonBubble({ name, season, delay }: { name: string; season: typeof SE
         {!doneTyping && <span className="ml-px animate-pulse text-[#a8e890]">|</span>}
       </div>
       <div className="mb-3 h-px bg-[rgba(255,255,255,0.08)]" />
-      <div className="font-serif-siq text-[34px] leading-none text-[#a8e890]">
+      <div className="font-sans-siq text-[34px] leading-none text-[#a8e890]">
         {count > 0 ? count.toLocaleString() : "—"}
       </div>
       <div className="mt-1.5 text-[12px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.35)]">
@@ -143,20 +143,27 @@ export function Seasonality() {
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
-    if (!ref.current) return;
+    const el = ref.current;
+    if (!el) return;
+    // Observe against the snap scroll root — default (viewport) IO is wrong for overflow scroll parents.
+    const scrollRoot = el.closest(".siq-scroll-root");
     const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setInView(true)),
-      { threshold: 0.15 },
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setInView(true);
+        });
+      },
+      { root: scrollRoot instanceof Element ? scrollRoot : null, threshold: [0, 0.05, 0.15], rootMargin: "0px" },
     );
-    obs.observe(ref.current);
+    obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section className="flex h-full flex-col" style={{ background: "#35583C", color: "#FCFAEF", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <section className="flex h-full flex-col" style={{ background: "#35583C", color: "#FCFAEF" }}>
       <div className="flex h-full flex-col px-12 py-6">
         <div className="siq-fade-in border-b pb-6" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
-          <h2 className="font-serif-siq text-[clamp(30px,4vw,52px)] font-normal leading-[1.05]">
+          <h2 className="font-sans-siq text-[clamp(30px,4vw,52px)] font-normal leading-[1.05]">
             Install <em className="italic text-[#a8e890]">Volume</em> by Month
           </h2>
         </div>
@@ -212,7 +219,7 @@ export function Seasonality() {
           </div>
         </div>
 
-        <div className="siq-fade-in mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 flex flex-wrap gap-3">
           {Object.entries(SEASONS).map(([name, s], idx) => (
             <SeasonBubble key={name} name={name} season={s} delay={inView ? 600 + idx * 220 : 99999} />
           ))}

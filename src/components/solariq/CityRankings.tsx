@@ -13,7 +13,7 @@ const fmtNum = (n: number) => (n >= 1000 ? (n / 1000).toFixed(1) + "k" : n.toLoc
 const fmtKw = (n: number) => (n >= 1000 ? (n / 1000).toFixed(1) + " MW" : n.toFixed(0) + " kW");
 
 export function CityRankings() {
-  const [state, setState] = useState("");
+  const [state, setState] = useState("CA");
   const [visibleRows, setVisibleRows] = useState(0);
   const [barFills, setBarFills] = useState<number[]>([]);
   const [stripVisible, setStripVisible] = useState(false);
@@ -79,16 +79,14 @@ export function CityRankings() {
   }, [top5]);
 
   return (
-    <section className="siq-fade-in flex h-full flex-col border-b border-[rgba(53,88,60,0.2)] px-12 py-6">
+    <section className="siq-fade-in flex min-h-0 flex-1 flex-col overflow-y-auto border-b border-[rgba(53,88,60,0.2)] px-12 py-6 pb-10">
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4 border-b border-[rgba(53,88,60,0.2)] pb-4">
         <div>
           <p className="mb-1 text-[13px] uppercase tracking-[0.25em] text-[color:var(--siq-fg)]">
             City rankings
           </p>
-          <h2 className="font-serif-siq text-[clamp(26px,3.5vw,42px)] leading-[1.1] text-[color:var(--siq-fg-deep)]">
-            Top 5 Cities
-            <br />
-            by Permit Volume
+          <h2 className="font-sans-siq text-[clamp(26px,3.5vw,50px)] leading-[1.1] text-[color:var(--siq-fg-deep)]">
+            Top 5 Cities by Permit Volume
           </h2>
         </div>
       </div>
@@ -112,7 +110,7 @@ export function CityRankings() {
           </span>
         </div>
         {state && (
-          <span className="font-serif-siq text-2xl italic text-[color:var(--siq-fg)]">
+          <span className="font-sans-siq text-2xl italic text-[color:var(--siq-fg)]">
             {STATE_NAMES[state] || state}
           </span>
         )}
@@ -144,11 +142,11 @@ export function CityRankings() {
                     transform: visible ? "translateX(0)" : "translateX(-20px)",
                   }}
                 >
-                  <span className="font-serif-siq text-[1.2rem] text-right text-[rgba(53,88,60,0.4)]">
+                  <span className="font-sans-siq text-[1.2rem] text-right text-[rgba(53,88,60,0.4)]">
                     {i + 1}
                   </span>
                   <div className="flex min-w-0 flex-col gap-2.5">
-                    <span className="truncate font-serif-siq text-[1.4rem] text-[color:var(--siq-fg-deep)]">
+                    <span className="truncate font-sans-siq text-[1.4rem] text-[color:var(--siq-fg-deep)]">
                       {d.city}
                     </span>
                     <div className="relative h-2.5 cursor-pointer bg-[rgba(53,88,60,0.12)]">
@@ -167,7 +165,7 @@ export function CityRankings() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className="font-serif-siq text-[2rem] leading-none text-[color:var(--siq-fg-deep)]">
+                    <span className="font-sans-siq text-[2rem] leading-none text-[color:var(--siq-fg-deep)]">
                       {fmtNum(d.install_count)}
                     </span>
                     <span className="text-[12px] uppercase tracking-[0.2em] text-[rgba(26,26,24,0.45)]">
@@ -198,7 +196,7 @@ export function CityRankings() {
                   key={i}
                   className="flex flex-col gap-1.5 border-r border-[rgba(53,88,60,0.2)] p-6 last:border-r-0"
                 >
-                  <span className="font-serif-siq text-[1.8rem] text-[color:var(--siq-fg)]">
+                  <span className="font-sans-siq text-[1.8rem] text-[color:var(--siq-fg)]">
                     {c.val}
                   </span>
                   <span className="text-[12px] uppercase tracking-[0.18em] text-[rgba(26,26,24,0.5)]">

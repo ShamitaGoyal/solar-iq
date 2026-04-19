@@ -71,18 +71,17 @@ export function SolarIQPage() {
   };
 
   return (
-    <div
-      style={{ fontFamily: "Inter, system-ui, sans-serif" }}
-      className="text-[color:var(--siq-fg-deep)]"
-    >
+    <div className="text-[color:var(--siq-fg-deep)]">
       {/* Fixed nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex h-12 items-center justify-between bg-[color:var(--siq-cream)]/90 px-10 backdrop-blur-sm border-b border-[var(--siq-border)]">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex h-12 items-center justify-start bg-[color:var(--siq-cream)]/90 px-7 backdrop-blur-sm">
         <button
+          type="button"
           onClick={() => scrollToSection(0)}
-          className="flex items-center gap-2 text-[13px] font-semibold tracking-[0.06em] text-[color:var(--siq-fg-deep)]"
+          className="flex cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-left text-[13px] font-semibold tracking-[0.06em] text-[color:var(--siq-fg-deep)] outline-none transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-[color:var(--siq-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--siq-cream)]"
+          aria-label="Go to home / hero"
         >
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--siq-fg)]">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
               <circle cx="6" cy="6" r="2.2" fill="#FCFAEF" />
               <line x1="6" y1="1" x2="6" y2="3" stroke="#FCFAEF" strokeWidth="1.2" strokeLinecap="round" />
               <line x1="6" y1="9" x2="6" y2="11" stroke="#FCFAEF" strokeWidth="1.2" strokeLinecap="round" />
@@ -92,18 +91,6 @@ export function SolarIQPage() {
           </div>
           SOLAR IQ
         </button>
-        <div className="flex items-center gap-6 font-mono-siq text-[11px] uppercase tracking-[0.14em] text-[color:var(--siq-fg-muted)]">
-          {SECTIONS.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => scrollToSection(i)}
-              className="transition-colors hover:text-[color:var(--siq-fg)]"
-              style={{ color: activeIdx === i ? "var(--siq-fg)" : undefined, fontWeight: activeIdx === i ? 500 : undefined }}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
       </nav>
 
       {/* Dot nav */}
@@ -136,22 +123,20 @@ export function SolarIQPage() {
         {/* ── 0: HERO ── */}
         <section ref={setRef(0)} className="siq-snap-section siq-in bg-[color:var(--siq-cream)]">
           <div className="grid h-full grid-cols-1 pt-12 md:grid-cols-2">
-            <div className="flex flex-col justify-center px-12 py-10">
+            <div className="flex flex-col justify-center px-20 py-10 mt-[-7rem]">
               <div className="siq-section-content mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(53,88,60,0.22)] px-4 py-1.5">
                 <div className="h-[5px] w-[5px] shrink-0 rounded-full bg-[color:var(--siq-fg)]" />
                 <span className="text-[12px] font-medium uppercase tracking-[0.12em] text-[color:var(--siq-fg-deep)]">
                   Solar intelligence
                 </span>
               </div>
-              <h1 className="siq-section-content mb-5 font-serif-siq text-[clamp(44px,5.5vw,72px)] font-normal leading-[1.05] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
-                Your home could
-                <br />
-                run on <em className="not-italic italic text-[color:var(--siq-fg)]">sunlight.</em>
+              <h1 className="siq-section-content mb-5 font-sans-siq text-[clamp(44px,5.5vw,60px)] font-normal leading-[0.98] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
+              See how much you could be saving homeowners with solar.
               </h1>
               <p className="siq-section-content mb-8 max-w-[400px] text-[16px] leading-[1.75] text-[color:var(--siq-fg-muted)]">
                 Cross-reference real permit data, local irradiance scores, and utility rates to see exactly what you'd save.
               </p>
-              <div className="siq-section-content mb-2.5 flex w-full max-w-[480px] border border-[var(--siq-border-strong)]">
+              {/* <div className="siq-section-content mb-2.5 flex w-full max-w-[480px] border border-[var(--siq-border-strong)]">
                 <input
                   className="h-12 flex-1 border-r border-[var(--siq-border)] bg-transparent px-4 font-mono-siq text-[14px] text-[color:var(--siq-fg-deep)] outline-none placeholder:text-[color:var(--siq-fg-muted)]"
                   placeholder="ZIP code"
@@ -171,7 +156,7 @@ export function SolarIQPage() {
                 >
                   Analyze
                 </button>
-              </div>
+              </div> */}
               <div className="min-h-5 text-[13px]" style={{ color: msg?.ok === false ? "#a04040" : "var(--siq-fg-light)" }}>
                 {msg?.text}
               </div>
@@ -181,15 +166,23 @@ export function SolarIQPage() {
             </div>
           </div>
           {/* Scroll cue */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-50">
-            <span className="font-mono-siq text-[10px] uppercase tracking-[0.2em] text-[color:var(--siq-fg-muted)]">scroll</span>
-            <div className="h-6 w-px bg-[color:var(--siq-fg-muted)]" style={{ animation: "siq-bounce-left 1.8s ease-in-out infinite", animationName: "scrollBounce" }} />
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+            <span
+              className="font-mono-siq inline-block text-[10px] uppercase tracking-[0.2em] text-[color:var(--siq-fg-muted)]"
+              style={{ animation: "scrollTextBounce 1.7s ease-in-out infinite" }}
+            >
+              scroll
+            </span>
+            <div
+              className="h-6 w-px bg-[color:var(--siq-fg-muted)]"
+              style={{ animation: "scrollBounce 1.8s ease-in-out infinite" }}
+            />
           </div>
         </section>
 
         {/* ── 1: ATLAS ── */}
         <section ref={setRef(1)} className="siq-snap-section bg-[color:var(--siq-cream)]">
-          <div className="siq-section-content h-full pt-12">
+          <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
             <SavingsAtlas />
           </div>
         </section>
@@ -203,7 +196,7 @@ export function SolarIQPage() {
 
         {/* ── 3: CITY RANKINGS ── */}
         <section ref={setRef(3)} className="siq-snap-section bg-[color:var(--siq-cream)]">
-          <div className="siq-section-content h-full pt-12">
+          <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
             <CityRankings />
           </div>
         </section>
@@ -216,17 +209,17 @@ export function SolarIQPage() {
         </section>
 
         {/* ── 5: LINE RACE ── */}
-        <section ref={setRef(5)} className="siq-snap-section bg-[color:var(--siq-cream)]">
-          <div className="siq-section-content h-full pt-12">
+        <section ref={setRef(5)} className="siq-snap-section flex flex-col bg-[color:var(--siq-cream)]">
+          <div className="siq-section-content flex min-h-0 flex-1 flex-col pt-12">
             <LineRace />
           </div>
           {/* Footer inside last section */}
-          <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-10 py-3 border-t border-[var(--siq-border)]">
+          <footer className="pt-[2rem] flex items-center justify-between px-10 py-3">
             <span className="font-mono-siq text-[11px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)]">
               Solar IQ · DataHacks 2026
             </span>
             <span className="font-mono-siq text-[11px] text-[color:var(--siq-fg-muted)]">
-              Powered by Gemini · NREL · EIA · Zen Power Dataset
+              @MakeAFish
             </span>
           </footer>
         </section>
@@ -237,6 +230,10 @@ export function SolarIQPage() {
         @keyframes scrollBounce {
           0%, 100% { transform: scaleY(1); opacity: 0.5; }
           50% { transform: scaleY(1.4); opacity: 0.8; }
+        }
+        @keyframes scrollTextBounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(4px); }
         }
       `}</style>
     </div>

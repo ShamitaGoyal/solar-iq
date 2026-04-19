@@ -88,7 +88,7 @@ export function SavingsCalculator() {
     <section className="siq-fade-in flex h-full flex-col border-b border-[rgba(53,88,60,0.1)] px-12 py-6">
       {/* HEADER */}
       <div className="mb-4 flex items-baseline justify-between border-b border-[rgba(53,88,60,0.1)] pb-4">
-        <h2 className="font-serif-siq text-[clamp(28px,3.5vw,48px)] font-normal leading-[1.05]">
+        <h2 className="font-sans-siq text-[clamp(28px,3.5vw,48px)] font-normal leading-[1.05]">
           Potential <em className="not-italic italic text-[color:var(--siq-fg)]">Savings</em> Calculator
         </h2>
         <p className="max-w-[340px] text-right text-[14px] leading-[1.6] text-[color:var(--siq-fg-muted)]">
@@ -97,9 +97,9 @@ export function SavingsCalculator() {
       </div>
 
       {/* CALC GRID */}
-      <div className="grid min-h-0 flex-1 grid-cols-1 border border-[rgba(53,88,60,0.2)] md:grid-cols-2">
+      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
         {/* LEFT */}
-        <div className="flex flex-col overflow-hidden border-b border-[rgba(53,88,60,0.2)] md:border-b-0 md:border-r">
+        <div className="flex flex-col overflow-hidden">
           <div className="flex-1 px-11 py-10">
             <div className="mb-9">
               <label className="mb-3 block text-[12px] uppercase tracking-[0.18em] text-[color:var(--siq-fg-muted)]">
@@ -113,7 +113,7 @@ export function SavingsCalculator() {
                   placeholder="e.g. 92101"
                   value={zip}
                   onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
-                  className="w-[150px] bg-transparent px-4 py-3 font-mono-siq text-[26px] tracking-[0.1em] text-[color:var(--siq-fg-deep)] outline-none"
+                  className="w-[150px] bg-transparent px-4 py-3 font-mono-siq text-[18px] tracking-[0.08em] text-[color:var(--siq-fg-deep)] outline-none placeholder:text-[13px] placeholder:tracking-[0.06em] placeholder:text-[color:var(--siq-fg-muted)]"
                 />
                 <div
                   className="flex flex-1 items-center border-l border-[rgba(53,88,60,0.1)] px-4 text-[13px] leading-[1.4]"
@@ -128,7 +128,7 @@ export function SavingsCalculator() {
               <label className="mb-3 block text-[12px] uppercase tracking-[0.18em] text-[color:var(--siq-fg-muted)]">
                 Monthly Electricity Bill
               </label>
-              <div className="mb-4 font-serif-siq text-[52px] leading-none text-[color:var(--siq-fg-deep)]">
+              <div className="mb-4 font-sans-siq text-[52px] leading-none text-[color:var(--siq-fg-deep)]">
                 ${bill}
                 <span className="ml-1 text-[22px] italic text-[color:var(--siq-fg-light)]"> /mo</span>
               </div>
@@ -149,25 +149,18 @@ export function SavingsCalculator() {
           </div>
 
           {/* TREE GARDEN */}
-          <div
-            className="relative h-[200px] flex-shrink-0 overflow-hidden border-t border-[rgba(53,88,60,0.1)]"
-            style={{
-              background:
-                "linear-gradient(to bottom, rgba(53,88,60,0.04) 0%, rgba(53,88,60,0.10) 100%)",
-            }}
-          >
-            <div className="absolute bottom-[38px] left-0 right-0 h-px bg-[rgba(53,88,60,0.2)]" />
+          <div className="relative h-[213px] flex-shrink-0 overflow-hidden">
+            <div className="absolute bottom-[38px] left-0 right-0 h-px" />
             <svg
               viewBox="0 0 680 200"
               preserveAspectRatio="xMidYMax meet"
               className="absolute bottom-0 left-0 h-full w-full"
             >
-              <rect x="0" y="162" width="680" height="38" fill="rgba(53,88,60,0.07)" />
               {/* BG trees */}
               <ellipse cx="60" cy="118" rx="22" ry="26" fill="rgba(74,122,58,0.18)" />
               <rect x="57" y="138" width="6" height="24" fill="rgba(100,80,50,0.18)" />
               <ellipse cx="130" cy="112" rx="18" ry="22" fill="rgba(74,122,58,0.15)" />
-              <rect x="127" y="130" width="6" height="32" fill="rgba(100,80,50,0.15)" />
+              <rect x="127" y="130" width="6" height="32"/>
               <polygon points="610,100 625,138 595,138" fill="rgba(53,88,60,0.15)" />
               <polygon points="610,115 621,138 599,138" fill="rgba(53,88,60,0.12)" />
               <rect x="607" y="138" width="6" height="24" fill="rgba(80,60,40,0.15)" />
@@ -253,7 +246,7 @@ export function SavingsCalculator() {
                 </div>
                 <div
                   key={pulseKey}
-                  className="font-serif-siq text-[80px] leading-[0.95] text-[#a8e890] [animation:siq-pulse_0.3s_ease_both]"
+                  className="font-sans-siq text-[80px] leading-[0.95] text-[#a8e890] [animation:siq-pulse_0.3s_ease_both]"
                 >
                   <span className="align-super text-[32px] italic text-[#a8e890]/65">$</span>
                   {fmt(result.annual)}
@@ -271,7 +264,7 @@ export function SavingsCalculator() {
                     key={i}
                     className="border-b border-r border-white/10 px-5 py-4 last:border-r-0 [&:nth-child(even)]:border-r-0 [&:nth-child(3)]:border-b-0 [&:nth-child(4)]:border-b-0"
                   >
-                    <div className="font-serif-siq text-[26px] leading-none text-[color:var(--siq-cream)]">
+                    <div className="font-sans-siq text-[26px] leading-none text-[color:var(--siq-cream)]">
                       {c.val}
                     </div>
                     <div className="mt-1 text-[12px] uppercase tracking-[0.13em] text-white/40">
@@ -281,7 +274,7 @@ export function SavingsCalculator() {
                 ))}
               </div>
 
-              <div className="relative">
+              {/* <div className="relative">
                 <div className="mb-2 text-[12px] uppercase tracking-[0.15em] text-white/40">
                   Consumption Offset
                 </div>
@@ -291,7 +284,7 @@ export function SavingsCalculator() {
                     style={{ width: `${Math.min(result.d.offset, 100)}%` }}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
         </div>
