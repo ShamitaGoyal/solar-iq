@@ -51,7 +51,7 @@ export function SolarIQPage() {
   return (
     <div className="bg-[color:var(--siq-cream)] font-mono-siq text-[color:var(--siq-fg-deep)]">
       {/* NAV */}
-      <nav className="siq-fade-in flex h-[52px] items-center bg-[color:var(--siq-cream)] px-13">
+      <nav className="siq-fade-in flex h-[52px] items-center bg-[color:var(--siq-cream)] pl-[2.5rem] pr-13">
         <div className="flex items-center gap-[9px] text-[13px] font-medium tracking-[0.07em] text-[color:var(--siq-fg-deep)]">
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--siq-fg)]">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -68,7 +68,7 @@ export function SolarIQPage() {
 
       {/* HERO */}
       <section className="grid min-h-[calc(100vh-52px)] grid-cols-1 bg-[color:var(--siq-cream)] md:grid-cols-2">
-        <div className="flex flex-col justify-center px-13 pb-13 pt-16">
+        <div className="flex flex-col justify-center px-13 pb-13 pt-[7rem]">
           <div className="siq-fade-in mb-7 inline-flex w-fit items-center gap-[7px] rounded-full border border-[rgba(53,88,60,0.22)] px-4 py-1.5">
             <div className="h-[5px] w-[5px] shrink-0 rounded-full bg-[color:var(--siq-fg)]" />
             <span className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-deep)]">
@@ -116,24 +116,6 @@ export function SolarIQPage() {
           <IsoHouse />
         </div>
       </section>
-
-      {/* STAT STRIP */}
-      <div className="siq-fade-in grid grid-cols-2 border-t border-[rgba(53,88,60,0.15)] bg-[color:var(--siq-fg)] md:grid-cols-4">
-        {[
-          { lbl: "Total permits", val: "84,291", d: "+12% this year" },
-          { lbl: "Avg system size", val: "7.2 kW", d: "+0.4 kW vs last yr" },
-          { lbl: "Avg monthly savings", val: "$138", d: "Per household" },
-          { lbl: "CO₂ offset this year", val: "142k t", d: "Across all installs" },
-        ].map((s, i) => (
-          <div key={i} className="border-r border-white/10 px-7 py-[22px] last:border-r-0">
-            <div className="mb-1.5 text-[9px] uppercase tracking-[0.12em] text-[color:var(--siq-cream)]/50">
-              {s.lbl}
-            </div>
-            <div className="text-[22px] font-medium tracking-[-0.01em] text-[color:var(--siq-cream)]">{s.val}</div>
-            <div className="mt-0.5 text-[10px] text-[color:var(--siq-cream)]/40">{s.d}</div>
-          </div>
-        ))}
-      </div>
 
       {/* CALCULATOR */}
       <section className="siq-fade-in border-b border-[rgba(53,88,60,0.1)] px-13 py-13">
