@@ -372,8 +372,11 @@ export function SavingsAtlas() {
               ref={svgRef}
               viewBox={`0 0 ${SVG_W} ${SVG_H}`}
               className="w-full border border-[rgba(53,88,60,0.1)]"
-              style={{ maxHeight: "clamp(300px, calc(100vh - 280px), 530px)" }}
-              style={{ cursor: zoom > 1 ? (dragging ? "grabbing" : "grab") : "default", background: "#f8f6ed" }}
+              style={{
+                maxHeight: "clamp(300px, calc(100vh - 280px), 530px)",
+                cursor: zoom > 1 ? (dragging ? "grabbing" : "grab") : "default",
+                background: "#f8f6ed",
+              }}
               onMouseDown={onSvgMouseDown}
               onMouseMove={(e) => {
                 onSvgMouseMove(e);
