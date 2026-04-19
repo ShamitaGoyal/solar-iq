@@ -35,10 +35,10 @@ const fmt$ = (n: number) =>
 
 function rampColor(t: number) {
   const stops: Array<[number, number, number]> = [
-    [232, 244, 232],
-    [159, 196, 159],
-    [74, 122, 58],
-    [53, 88, 60],
+    [240, 237, 222],  // near-cream
+    [172, 213, 148],  // light sage
+    [60, 130, 50],    // vivid mid-green
+    [14, 48, 22],     // near-black forest
   ];
   const seg = Math.min(stops.length - 2, Math.floor(t * (stops.length - 1)));
   const lt = t * (stops.length - 1) - seg;
@@ -70,12 +70,12 @@ export function SavingsAtlas() {
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [hoveredZip, setHoveredZip] = useState<string | null>(null);
   const [zipTooltip, setZipTooltip] = useState<{ x: number; y: number } | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef<{ mx: number; my: number; px: number; py: number } | null>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
   /** Debounce list-row hover so scrubbing the Top 10 does not flicker the map / sidebar. */
   const listHoverTimersRef = useRef<{ enter: ReturnType<typeof setTimeout> | null; leave: ReturnType<typeof setTimeout> | null }>({
     enter: null,
@@ -214,15 +214,14 @@ export function SavingsAtlas() {
     return entries as Array<{ zip: string; city: string; state: string; rate: number; kwh: number; offset: number; kw: number; tilt: number; savings: number; centroid: [number, number] }>;
   }, [selectedState]);
 
-  // Projection fitted to state ZIP centroids
+  // Projection fitted to ZIP centroids — reliable bounds, not skewed by outlier polygons
   const stateProj = useMemo(() => {
     if (!stateZipEntries || stateZipEntries.length === 0) return null;
     const coords = stateZipEntries.map((z) => [z.centroid[1], z.centroid[0]] as [number, number]);
-    const proj = geoMercator().fitExtent(
+    return geoMercator().fitExtent(
       [[40, 30], [SVG_W - 40, SVG_H - 30]],
       { type: "MultiPoint", coordinates: coords } as any,
     );
-    return proj;
   }, [stateZipEntries]);
 
   // Path generator for the state drilldown (uses stateProj)
@@ -257,7 +256,6 @@ export function SavingsAtlas() {
     return rampColor(Math.max(0, Math.min(1, t)));
   }
 
-  // Reset pan/zoom when entering a state
   useEffect(() => {
     const t = listHoverTimersRef.current;
     if (t.enter) {
@@ -313,7 +311,6 @@ export function SavingsAtlas() {
     setDragging(false);
     dragStart.current = null;
   }
-
   const hoveredData = hover ? STATE_SAVINGS_DATA[hover] : null;
 
   return (
@@ -469,7 +466,7 @@ export function SavingsAtlas() {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <span className="text-[13px] uppercase tracking-[0.14em] text-[color:var(--siq-fg-muted)]">Per-capita savings</span>
               <span className="text-[13px] text-[color:var(--siq-fg-muted)]">${min.toLocaleString()}</span>
-              <div className="h-[6px] w-[160px] border border-[rgba(53,88,60,0.18)]" style={{ background: "linear-gradient(to right, #e8f4e8, #9fc49f, #4a7a3a, #35583C)" }} />
+              <div className="h-[6px] w-[160px] border border-[rgba(53,88,60,0.18)]" style={{ background: "linear-gradient(to right, #f0edde, #acd594, #3c8232, #0e3016)" }} />
               <span className="text-[13px] text-[color:var(--siq-fg-muted)]">${max.toLocaleString()}</span>
               <span className="ml-3 inline-flex items-center gap-1.5 text-[13px] uppercase tracking-[0.13em] text-[color:var(--siq-fg-muted)]">
                 <span className="inline-block h-[10px] w-[14px] border border-[rgba(53,88,60,0.18)]" style={{ backgroundImage: "repeating-linear-gradient(45deg, rgba(53,88,60,0.18) 0, rgba(53,88,60,0.18) 1px, transparent 0, transparent 50%)", backgroundSize: "5px 5px", backgroundColor: "#e8f4e8" }} />
@@ -498,9 +495,7 @@ export function SavingsAtlas() {
                 title="Reset zoom"
               >↺</button>
             </div>
-
             <svg
-              ref={svgRef}
               viewBox={`0 0 ${SVG_W} ${SVG_H}`}
               className="w-full border border-[rgba(53,88,60,0.1)]"
               style={{
@@ -515,24 +510,17 @@ export function SavingsAtlas() {
               onMouseUp={onSvgMouseUp}
               onMouseLeave={() => { onSvgMouseUp(); }}
             >
-              <g transform={`translate(${pan.x},${pan.y}) scale(${zoom}) translate(${SVG_W / 2 * (1 - 1 / zoom)},${SVG_H / 2 * (1 - 1 / zoom)})`}>
-                {/* Background */}
-                <rect x={-SVG_W * 2} y={-SVG_H * 2} width={SVG_W * 5} height={SVG_H * 5} fill="#f8f6ed" />
-
-                {/* State boundary outline */}
-                {statePathGen && selectedStateFeat && (() => {
-                  const d = statePathGen(selectedStateFeat as any) || "";
-                  return (
-                    <path
-                      d={d}
-                      fill="rgba(53,88,60,0.04)"
-                      stroke="rgba(53,88,60,0.35)"
-                      strokeWidth={1.5 / zoom}
-                      strokeLinejoin="round"
-                      pointerEvents="none"
-                    />
-                  );
-                })()}
+              <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
+                {statePathGen && selectedStateFeat && (
+                  <path
+                    d={statePathGen(selectedStateFeat as any) || ""}
+                    fill="rgba(53,88,60,0.04)"
+                    stroke="rgba(50,50,45,0.5)"
+                    strokeWidth={1.5 / zoom}
+                    strokeLinejoin="round"
+                    pointerEvents="none"
+                  />
+                )}
 
                 {stateZipEntries && stateProj && stateZipEntries.map((z) => {
                   const [lat, lon] = z.centroid;
@@ -540,19 +528,17 @@ export function SavingsAtlas() {
                   if (!pt) return null;
                   const [px, py] = pt;
                   const isHov = hoveredZip === z.zip;
-                  const color = getZipColor(z.savings);
-                  const r = isHov ? 5 : 3.5;
                   return (
                     <circle
                       key={z.zip}
                       cx={px}
                       cy={py}
-                      r={r / zoom}
-                      fill={color}
-                      fillOpacity={isHov ? 1 : 0.82}
-                      stroke={isHov ? "#1c1c18" : "rgba(252,250,239,0.5)"}
-                      strokeWidth={isHov ? 1.2 / zoom : 0.5 / zoom}
-                      style={{ cursor: "pointer", transition: "r 80ms" }}
+                      r={(isHov ? 5 : 3.5) / zoom}
+                      fill={getZipColor(z.savings)}
+                      fillOpacity={isHov ? 1 : 0.85}
+                      stroke={isHov ? "#1c1c18" : "rgba(252,250,239,0.4)"}
+                      strokeWidth={(isHov ? 1.2 : 0.5) / zoom}
+                      style={{ cursor: "pointer" }}
                       onMouseEnter={() => setHoveredZip(z.zip)}
                       onMouseMove={(e) => {
                         const rect = wrapRef.current?.getBoundingClientRect();
@@ -591,7 +577,7 @@ export function SavingsAtlas() {
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <span className="text-[13px] uppercase tracking-[0.14em] text-[color:var(--siq-fg-muted)]">ZIP savings/yr</span>
               <span className="text-[13px] text-[color:var(--siq-fg-muted)]">{fmt$(zipMin)}</span>
-              <div className="h-[6px] w-[140px] border border-[rgba(53,88,60,0.18)]" style={{ background: "linear-gradient(to right, #e8f4e8, #9fc49f, #4a7a3a, #35583C)" }} />
+              <div className="h-[6px] w-[140px] border border-[rgba(53,88,60,0.18)]" style={{ background: "linear-gradient(to right, #f0edde, #acd594, #3c8232, #0e3016)" }} />
               <span className="text-[13px] text-[color:var(--siq-fg-muted)]">{fmt$(zipMax)}</span>
               <span className="ml-2 text-[13px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)]">· {stateZipEntries?.length ?? 0} ZIP codes</span>
             </div>
