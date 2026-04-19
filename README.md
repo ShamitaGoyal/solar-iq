@@ -8,7 +8,7 @@ A lot of people in our own families have wondered whether switching to solar is 
 
 We took on the Zenpower track with the goal of designing an interactive, responsive, and visually rich analytics platform that helps Zenpower expand their business operations. The core challenge was turning raw permit records, solar resource data, and electricity rates into clear, actionable insights about where solar demand exists, where it is growing, and how to quantify the savings potential for any given customer or region. We prioritized UI/UX throughout, because data that is hard to read does not get used.
 
-## What It Does and How It Helps
+## What It Does 
 
 Solar IQ gives Zenpower a full-picture view of the US solar market, from national trends down to individual ZIP codes. Every visualization is designed to answer a specific business question.
 
@@ -42,15 +42,20 @@ Our Python pipeline (`pipeline.py`) runs seven analytical queries against the cl
 The savings formula is: `avg_kw x tilt_annual x 365 x 0.80 x electricity_rate`, where tilt_annual is the optimal-tilt irradiance from NREL serving as a proxy for peak sun hours, and 0.80 accounts for real-world system losses.
 
 **Tech Stack**
+**Data**
+- Python
+- Pandas/Geopandas
+- Shapely (Python, geometry simplification)
+- NREL Solar Resource API, EIA 861, US Census, Zenpower dataset
 
+**Web Dev**
 - React 19 + TypeScript, TanStack Start (SSR), TanStack Router
 - Vite
 - Tailwind CSS
 - Apache ECharts
 - D3-geo + TopoJSON (choropleth maps)
 - Three.js (3D isometric house on the hero)
-- Shapely (Python, geometry simplification)
-- NREL Solar Resource API, EIA 861, US Census, Zenpower dataset
+- Vercel (Deployment)
 
 ## Challenges We Ran Into
 
