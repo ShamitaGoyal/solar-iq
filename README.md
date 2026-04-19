@@ -4,13 +4,9 @@
 
 A lot of people in our own families have wondered whether switching to solar is actually worth it, and where it makes the most financial sense. When we looked at Zenpower's dataset, we realized they were asking the same questions from a business angle: which customers to target, which regions have the highest untapped potential, and how to make a compelling case for solar adoption. That overlap felt like a natural fit. We decided to build an interactive dashboard that could answer those questions for both a sales team and an individual homeowner at the same time.
 
----
-
 ## Problem Statement
 
 We took on the Zenpower track with the goal of designing an interactive, responsive, and visually rich analytics platform that helps Zenpower expand their business operations. The core challenge was turning raw permit records, solar resource data, and electricity rates into clear, actionable insights about where solar demand exists, where it is growing, and how to quantify the savings potential for any given customer or region. We prioritized UI/UX throughout, because data that is hard to read does not get used.
-
----
 
 ## What It Does and How It Helps
 
@@ -27,8 +23,6 @@ Solar IQ gives Zenpower a full-picture view of the US solar market, from nationa
 **Orphaned Units by Company** is an animated timeline showing cumulative installs by installer from 2010 to the present. With the exception of Sunrun, every major installer in the dataset has gone out of business, which means hundreds of thousands of solar panels now have no service provider. This is Zenpower's core market opportunity, and this chart makes the scale of it impossible to ignore.
 
 The platform focuses on customer acquisition as its primary value: helping Zenpower find the right regions, the right seasons, and the right customers to target with confidence.
-
----
 
 ## How We Built It
 
@@ -58,33 +52,23 @@ The savings formula is: `avg_kw x tilt_annual x 365 x 0.80 x electricity_rate`, 
 - Shapely (Python, geometry simplification)
 - NREL Solar Resource API, EIA 861, US Census, Zenpower dataset
 
----
-
 ## Challenges We Ran Into
 
 The biggest challenge was data coverage. We found not every ZIP code has permit history, not every permit has a system size recorded, and NREL irradiance data does not exist for every ZCTA. To avoid leaving huge gaps in the national map, we built a three-tier geographic fallback: if a ZIP has no observed data, we substitute the state mean; if the state mean is also unavailable, we fall back to a national constant. We tracked the source of every estimate (observed, state mean, or constant) so confidence levels are reflected in the visualization.
 
 We also had to unify five different installer datasets that each used different schemas, some with explicit ZIP codes and some with raw addresses that needed to be parsed. Regex-based address parsing with ZIP extraction let us bring those into the same pipeline without losing install records.
 
----
-
 ## Accomplishments We're Proud Of
 
 This was our first time working with 3D models in Three.js, and getting the house on the hero section to feel polished was a real highlight and a visualization we all love. We are also proud of the D3-based choropleth map, which required learning how geographic projections, TopoJSON, and custom color scales work together directly in the browser. Building that from scratch rather than relying on a mapping library gave us a lot of control over the design.
-
----
 
 ## What We Learned
 
 We learned a lot about working with geospatial data at scale, from navigating the differences between postal ZIP codes and Census ZCTAs, to simplifying polygon geometries for web delivery without losing visual fidelity. We also got a much better understanding of how solar economics actually work: how irradiance, system size, efficiency losses, and utility rates combine into a savings estimate, and where the real uncertainty lives in that calculation.
 
----
-
 ## What's Next for Solar IQ
 
 We would love to connect with the Zenpower team to better understand their specific sales workflows and add features that map directly to how they operate. On the data side, we are interested in incorporating the DSIRE API to layer in state and local solar incentives, rebates, and net metering policies, since those can dramatically change the ROI calculation for a given customer. A more comprehensive regional policy view would make the savings estimates more accurate and the pitch to homeowners even stronger
-
----
 
 ## Resources
 
