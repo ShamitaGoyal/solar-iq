@@ -279,16 +279,13 @@ export function SolarIQPage() {
           <div className="pointer-events-none absolute left-[55%] top-1/2 h-[90px] w-[90px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(168,232,144,0.08)]" />
           <div className="pointer-events-none absolute bottom-20 right-20 h-[50px] w-[50px] rounded-full bg-[rgba(168,232,144,0.06)]" />
 
-          <SolarIqLineSplitReveal
+          <SolarIqTypingHeadline
             observeTargetRef={t4SectionRef}
-            hostClassName="relative z-10 flex h-full flex-col justify-center px-16"
-          >
-            <h2 className="siq-intro-split siq-tc-title font-serif-siq text-[clamp(47px,6.5vw,75px)] text-center font-normal leading-[1.08] tracking-[-0.02em] text-[color:var(--siq-fg-deep)] opacity-0">
-              Zero in on the top five most
-              <br />
-              in-demand cities by total permits
-            </h2>
-          </SolarIqLineSplitReveal>
+            hostClassName="relative z-10 flex h-full flex-col items-center justify-center px-16 text-center"
+            titleClassName="siq-tc-title font-serif-siq text-[clamp(40px,5.5vw,76px)] font-normal leading-[1.08] tracking-[-0.02em] text-[color:var(--siq-fg-deep)]"
+            text={"From statewide signals\nto city streets."}
+            durationMs={3200}
+          />
         </section>
 
         {/* ── 5: CALCULATOR ── */}
@@ -313,13 +310,16 @@ export function SolarIQPage() {
           }}
           className="siq-snap-section bg-[color:var(--siq-cream)]"
         >
-          <SolarIqTypingHeadline
+          <SolarIqLineSplitReveal
             observeTargetRef={t6SectionRef}
-            hostClassName="flex h-full flex-col items-center justify-center px-16 text-center"
-            titleClassName="siq-tc-title font-serif-siq text-[clamp(40px,5.5vw,76px)] font-normal leading-[1.08] tracking-[-0.02em] text-[color:var(--siq-fg-deep)]"
-            text={"From statewide signals\nto city streets."}
-            durationMs={3200}
-          />
+            hostClassName="flex h-full flex-col justify-center px-16"
+          >
+            <h2 className="siq-intro-split siq-tc-title font-serif-siq text-[clamp(47px,6.5vw,75px)] text-center font-normal leading-[1.08] tracking-[-0.02em] text-[color:var(--siq-fg-deep)] opacity-0">
+              Zero in on the top five most
+              <br />
+              in-demand cities by total permits
+            </h2>
+          </SolarIqLineSplitReveal>
         </section>
 
         {/* ── 7: CITY RANKINGS ── */}
