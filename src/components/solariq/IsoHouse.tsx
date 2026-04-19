@@ -284,7 +284,7 @@ export function IsoHouse() {
 
   return (
     <div ref={wrapRef} className="relative h-full min-h-[520px] w-full overflow-visible">
-      <canvas ref={canvasRef} className="block h-full w-full" />
+      <canvas ref={canvasRef} className="mt-[-3rem] block h-full w-full" />
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 border border-[var(--siq-border)] bg-[rgba(252,250,239,0.7)] px-3.5 py-1.5 text-[9px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)] backdrop-blur-sm whitespace-nowrap">
         Drag to rotate
       </div>

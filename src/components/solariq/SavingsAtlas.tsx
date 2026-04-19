@@ -76,6 +76,98 @@ export function SavingsAtlas() {
   const dragStart = useRef<{ mx: number; my: number; px: number; py: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  /** Debounce list-row hover so scrubbing the Top 10 does not flicker the map / sidebar. */
+  const listHoverTimersRef = useRef<{ enter: ReturnType<typeof setTimeout> | null; leave: ReturnType<typeof setTimeout> | null }>({
+    enter: null,
+    leave: null,
+  });
+
+  const LIST_HOVER_ENTER_MS = 80;
+  const LIST_HOVER_LEAVE_MS = 160;
+
+  function cancelListHoverTimers() {
+    const t = listHoverTimersRef.current;
+    if (t.enter) {
+      clearTimeout(t.enter);
+      t.enter = null;
+    }
+    if (t.leave) {
+      clearTimeout(t.leave);
+      t.leave = null;
+    }
+  }
+
+  function scheduleListHoverEnter(state: string) {
+    cancelListHoverTimers();
+    listHoverTimersRef.current.enter = setTimeout(() => {
+      listHoverTimersRef.current.enter = null;
+      setHover(state);
+    }, LIST_HOVER_ENTER_MS);
+  }
+
+  function scheduleListHoverLeave() {
+    if (listHoverTimersRef.current.enter) {
+      clearTimeout(listHoverTimersRef.current.enter);
+      listHoverTimersRef.current.enter = null;
+    }
+    if (listHoverTimersRef.current.leave) clearTimeout(listHoverTimersRef.current.leave);
+    listHoverTimersRef.current.leave = setTimeout(() => {
+      listHoverTimersRef.current.leave = null;
+      setHover(null);
+    }, LIST_HOVER_LEAVE_MS);
+  }
+
+  /** Selected-state sidebar: crossfade on change so stats do not snap/flicker. */
+  const displayedSidebarAbRef = useRef<string | null>(null);
+  const sidebarSwapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [sidebarDisplayAb, setSidebarDisplayAb] = useState<string | null>(null);
+  const [sidebarPanelBlend, setSidebarPanelBlend] = useState(1);
+  const SIDEBAR_PANEL_FADE_MS = 100;
+  const sidebarDisplayAbLiveRef = useRef<string | null>(null);
+  sidebarDisplayAbLiveRef.current = sidebarDisplayAb;
+
+  const sidebarDisplayData = sidebarDisplayAb ? STATE_SAVINGS_DATA[sidebarDisplayAb] : null;
+
+  useEffect(() => {
+    if (sidebarSwapTimerRef.current) {
+      clearTimeout(sidebarSwapTimerRef.current);
+      sidebarSwapTimerRef.current = null;
+    }
+
+    const display = sidebarDisplayAbLiveRef.current;
+    const sameKey = (hover ?? "") === (display ?? "");
+    if (sameKey) {
+      setSidebarPanelBlend((b) => (b < 1 ? 1 : b));
+      displayedSidebarAbRef.current = hover;
+      return;
+    }
+
+    if (display === null && hover !== null) {
+      displayedSidebarAbRef.current = hover;
+      setSidebarDisplayAb(hover);
+      setSidebarPanelBlend(1);
+      return;
+    }
+
+    if (hover === null) {
+      setSidebarPanelBlend(0);
+      sidebarSwapTimerRef.current = setTimeout(() => {
+        sidebarSwapTimerRef.current = null;
+        displayedSidebarAbRef.current = null;
+        setSidebarDisplayAb(null);
+        setSidebarPanelBlend(1);
+      }, SIDEBAR_PANEL_FADE_MS);
+      return;
+    }
+
+    setSidebarPanelBlend(0);
+    sidebarSwapTimerRef.current = setTimeout(() => {
+      sidebarSwapTimerRef.current = null;
+      displayedSidebarAbRef.current = hover;
+      setSidebarDisplayAb(hover);
+      requestAnimationFrame(() => setSidebarPanelBlend(1));
+    }, SIDEBAR_PANEL_FADE_MS);
+  }, [hover]);
 
   const { total, min, max, ranked } = useMemo(() => {
     const entries = Object.entries(STATE_SAVINGS_DATA).filter(([s]) => STATE_NAMES[s]);
@@ -167,11 +259,36 @@ export function SavingsAtlas() {
 
   // Reset pan/zoom when entering a state
   useEffect(() => {
+    const t = listHoverTimersRef.current;
+    if (t.enter) {
+      clearTimeout(t.enter);
+      t.enter = null;
+    }
+    if (t.leave) {
+      clearTimeout(t.leave);
+      t.leave = null;
+    }
+    if (sidebarSwapTimerRef.current) {
+      clearTimeout(sidebarSwapTimerRef.current);
+      sidebarSwapTimerRef.current = null;
+    }
+    displayedSidebarAbRef.current = null;
+    setSidebarDisplayAb(null);
+    setSidebarPanelBlend(1);
     setZoom(1);
     setPan({ x: 0, y: 0 });
     setHoveredZip(null);
     setZipTooltip(null);
   }, [selectedState]);
+
+  useEffect(() => {
+    return () => {
+      const t = listHoverTimersRef.current;
+      if (t.enter) clearTimeout(t.enter);
+      if (t.leave) clearTimeout(t.leave);
+      if (sidebarSwapTimerRef.current) clearTimeout(sidebarSwapTimerRef.current);
+    };
+  }, []);
 
   function handleZoomIn() {
     setZoom((z) => Math.min(z * 1.5, 12));
@@ -200,16 +317,16 @@ export function SavingsAtlas() {
   const hoveredData = hover ? STATE_SAVINGS_DATA[hover] : null;
 
   return (
-    <section className="flex h-full flex-col border-t border-[var(--siq-border-strong)] bg-[color:var(--siq-cream)] px-10 py-5">
+    <section className="flex min-h-0 flex-1 flex-col border-t border-[var(--siq-border-strong)] bg-[color:var(--siq-cream)] px-10 pb-12 pt-6">
       {/* Header */}
-      <div className="siq-fade-in mb-4 flex flex-wrap items-end justify-between gap-4 border-b border-[var(--siq-border)] pb-4">
+      <div className="siq-fade-in mb-4 flex shrink-0 flex-wrap items-end justify-between gap-4 border-b border-[var(--siq-border)] pb-4">
         <div>
-          <div className="mb-3 inline-flex items-center gap-[7px] rounded-full border border-[rgba(53,88,60,0.22)] px-4 py-1.5">
+          {/* <div className="mb-3 inline-flex items-center gap-[7px] rounded-full border border-[rgba(53,88,60,0.22)] px-4 py-1.5">
             <div className="h-[5px] w-[5px] rounded-full bg-[color:var(--siq-fg)]" />
             <span className="text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-deep)]">
               National Solar Potential
             </span>
-          </div>
+          </div> */}
           {/* Breadcrumb */}
           <div className="mb-2 flex items-center gap-2 text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">
             <button
@@ -225,7 +342,7 @@ export function SavingsAtlas() {
               </>
             )}
           </div>
-          <h2 className="font-serif-siq text-[clamp(32px,3.5vw,48px)] font-normal leading-[0.95] tracking-[-0.02em] text-[color:var(--siq-fg)]">
+          <h2 className="font-sans-siq text-[clamp(32px,3.5vw,48px)] font-normal leading-[0.95] tracking-[-0.02em] text-[color:var(--siq-fg)]">
             Solar <em className="italic text-[color:var(--siq-fg-deep)]">Savings</em> Atlas
           </h2>
           {!selectedState && (
@@ -252,17 +369,17 @@ export function SavingsAtlas() {
             <div className="text-[13px] uppercase tracking-[0.16em] text-[color:var(--siq-fg-muted)]">
               Total Yearly National Potential
             </div>
-            <div className="font-serif-siq text-[42px] leading-none text-[color:var(--siq-fg)]">{fmt$(total)}</div>
+            <div className="font-sans-siq text-[42px] leading-none text-[color:var(--siq-fg)]">{fmt$(total)}</div>
           </div>
         </div>
       </div>
 
       {/* Map + Sidebar */}
-      <div className="siq-fade-in grid grid-cols-1 gap-8 md:grid-cols-[1fr_340px]">
+      <div className="siq-fade-in grid min-h-0 flex-1 grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_340px] md:items-stretch">
 
         {/* ── NATIONAL VIEW ── */}
         {!selectedState && (
-          <div ref={wrapRef} className="relative">
+          <div ref={wrapRef} className="relative flex min-h-0 flex-col">
             <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full" style={{ maxHeight: "clamp(300px, calc(100vh - 280px), 530px)" }}>
               <defs>
                 <pattern id="hatch" patternUnits="userSpaceOnUse" width={5} height={5} patternTransform="rotate(45)">
@@ -288,15 +405,29 @@ export function SavingsAtlas() {
                         fill={getFill(ab)}
                         stroke={isHover ? "#1c1c18" : "rgba(252,250,239,0.7)"}
                         strokeWidth={isHover ? 1.4 : 0.6}
-                        style={{ cursor: "pointer", transition: "stroke 120ms ease", filter: isHover ? "brightness(1.08)" : undefined }}
-                        onMouseEnter={() => setHover(ab)}
+                        style={{
+                          cursor: "pointer",
+                          transition: "stroke 220ms ease-in-out, stroke-width 220ms ease-in-out, filter 220ms ease-in-out",
+                          filter: isHover ? "brightness(1.08)" : undefined,
+                        }}
+                        onMouseEnter={() => {
+                          cancelListHoverTimers();
+                          setHover(ab);
+                        }}
                         onMouseMove={(e) => {
                           const rect = wrapRef.current?.getBoundingClientRect();
                           if (!rect) return;
                           setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, ab });
                         }}
-                        onMouseLeave={() => { setHover(null); setTooltip(null); }}
-                        onClick={() => setSelectedState(ab)}
+                        onMouseLeave={() => {
+                          cancelListHoverTimers();
+                          setHover(null);
+                          setTooltip(null);
+                        }}
+                        onClick={() => {
+                          cancelListHoverTimers();
+                          setSelectedState(ab);
+                        }}
                       />
                     );
                   })}
@@ -321,7 +452,7 @@ export function SavingsAtlas() {
                   top: tooltip.y + 14,
                 }}
               >
-                <div className="mb-1 font-serif-siq text-[20px] leading-none text-[color:var(--siq-fg)]">
+                <div className="mb-1 font-sans-siq text-[20px] leading-none text-[color:var(--siq-fg)]">
                   {STATE_NAMES[tooltip.ab]} · {tooltip.ab}
                 </div>
                 <div className="space-y-[2px] text-[13px] text-[color:var(--siq-fg-deep)]">
@@ -350,7 +481,7 @@ export function SavingsAtlas() {
 
         {/* ── STATE DRILLDOWN VIEW ── */}
         {selectedState && (
-          <div className="relative" ref={wrapRef}>
+          <div className="relative flex min-h-0 flex-col" ref={wrapRef}>
             {/* Zoom controls */}
             <div className="absolute right-2 top-2 z-10 flex flex-col gap-1">
               <button
@@ -444,7 +575,7 @@ export function SavingsAtlas() {
                   top: zipTooltip.y + 14,
                 }}
               >
-                <div className="mb-1 font-serif-siq text-[19px] leading-none text-[color:var(--siq-fg)]">
+                <div className="mb-1 font-sans-siq text-[19px] leading-none text-[color:var(--siq-fg)]">
                   {hoveredZipData.city} · {hoveredZipData.zip}
                 </div>
                 <div className="space-y-[2px] text-[13px] text-[color:var(--siq-fg-deep)]">
@@ -468,64 +599,82 @@ export function SavingsAtlas() {
         )}
 
         {/* Sidebar */}
-        <aside className="border-l border-[var(--siq-border)] pl-6">
+        <aside className="flex min-h-0 flex-col border-l border-[var(--siq-border)] pl-6 md:h-full">
           {!selectedState ? (
             <>
-              <div className="border-b border-[var(--siq-border)] pb-4">
+              <div className="shrink-0 border-b border-[var(--siq-border)] pb-4 pr-1">
                 <div className="text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">
-                  {hover ? "Selected State" : "Hover Map"}
+                  {sidebarDisplayAb ? "Selected State" : "Hover Map"}
                 </div>
-                {hoveredData ? (
-                  <div className="mt-2">
-                    <div className="font-serif-siq text-[28px] leading-none text-[color:var(--siq-fg)]">{STATE_NAMES[hover!]}</div>
-                    <div className="mt-1 text-[12px] tracking-[0.12em] text-[color:var(--siq-fg-muted)]">{hover}</div>
-                    <div className="mt-3 space-y-1.5 text-[13px]">
-                      <Row label="Per Capita" value={`$${hoveredData.pc.toLocaleString()}`} highlight />
-                      <Row label="Total Savings" value={fmt$(hoveredData.ts)} highlight />
-                      <Row label="Population" value={hoveredData.p.toLocaleString()} />
-                      <Row label="ZIPs" value={String(hoveredData.z)} />
-                    </div>
+                <div className="relative mt-2 min-h-[128px]">
+                  <div
+                    className="transition-opacity duration-[140ms] ease-in-out"
+                    style={{ opacity: sidebarPanelBlend }}
+                  >
+                    {sidebarDisplayData ? (
+                      <>
+                        <div className="font-sans-siq text-[28px] leading-none text-[color:var(--siq-fg)]">
+                          {STATE_NAMES[sidebarDisplayAb!]}
+                        </div>
+                        <div className="mt-1 text-[12px] tracking-[0.12em] text-[color:var(--siq-fg-muted)]">{sidebarDisplayAb}</div>
+                        <div className="mt-3 space-y-1.5 text-[13px]">
+                          <Row label="Per Capita" value={`$${sidebarDisplayData.pc.toLocaleString()}`} highlight />
+                          <Row label="Total Savings" value={fmt$(sidebarDisplayData.ts)} highlight />
+                          <Row label="Population" value={sidebarDisplayData.p.toLocaleString()} />
+                          <Row label="ZIPs" value={String(sidebarDisplayData.z)} />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-[13px] italic leading-[1.55] text-[color:var(--siq-fg-muted)]">
+                        Hover any state to see its breakdown. Click to drill into ZIP codes.
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="mt-2 text-[13px] italic text-[color:var(--siq-fg-muted)]">
-                    Hover any state to see its breakdown. Click to drill into ZIP codes.
-                  </div>
-                )}
+                </div>
               </div>
-              <div className="mt-4">
-                <div className="mb-3 text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">Top 10 · Per Capita</div>
-                <div className="space-y-2">
-                  {ranked.map(([state, v], i) => {
-                    const w = (v.pc / max) * 100;
-                    return (
-                      <div
-                        key={state}
-                        className="grid cursor-pointer grid-cols-[18px_1fr] gap-1.5 border-b border-[var(--siq-border)] pb-1.5 hover:bg-[rgba(53,88,60,0.04)]"
-                        onMouseEnter={() => setHover(state)}
-                        onMouseLeave={() => setHover(null)}
-                        onClick={() => setSelectedState(state)}
-                      >
-                        <span className="pt-[1px] text-right text-[13px] text-[color:var(--siq-fg-muted)]">{String(i + 1).padStart(2, "0")}</span>
-                        <div className="flex flex-col gap-[2px]">
-                          <span className="text-[12px] tracking-[0.04em] text-[color:var(--siq-fg)]">{STATE_NAMES[state] ?? state}</span>
-                          <div className="flex items-center gap-2">
-                            <div className="h-[2px] bg-[color:var(--siq-fg)] transition-all duration-500" style={{ width: `${w}%` }} />
-                            <span className="whitespace-nowrap text-[13px] text-[color:var(--siq-fg-muted)]">${v.pc.toLocaleString()}</span>
+              <div className="mt-5 flex flex-col gap-3 py-1 pl-0.5 pr-2 md:min-h-0 md:flex-1">
+                <div className="shrink-0 text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">
+                  Top 10 · Per Capita
+                </div>
+                <div className="max-h-[min(320px,52vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5 md:max-h-none md:min-h-0 md:flex-1">
+                  <div className="space-y-2 pb-3">
+                    {ranked.map(([state, v], i) => {
+                      const w = (v.pc / max) * 100;
+                      return (
+                        <div
+                          key={state}
+                          className="grid cursor-pointer grid-cols-[18px_1fr] gap-1.5 border-b border-[var(--siq-border)] pb-1.5 transition-colors duration-200 ease-in-out hover:bg-[rgba(53,88,60,0.04)]"
+                          onMouseEnter={() => scheduleListHoverEnter(state)}
+                          onMouseLeave={() => scheduleListHoverLeave()}
+                          onClick={() => {
+                            cancelListHoverTimers();
+                            setHover(null);
+                            setTooltip(null);
+                            setSelectedState(state);
+                          }}
+                        >
+                          <span className="pt-[1px] text-right text-[13px] text-[color:var(--siq-fg-muted)]">{String(i + 1).padStart(2, "0")}</span>
+                          <div className="flex flex-col gap-[2px]">
+                            <span className="text-[12px] tracking-[0.04em] text-[color:var(--siq-fg)]">{STATE_NAMES[state] ?? state}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-[2px] bg-[color:var(--siq-fg)] transition-all duration-500" style={{ width: `${w}%` }} />
+                              <span className="whitespace-nowrap text-[13px] text-[color:var(--siq-fg-muted)]">${v.pc.toLocaleString()}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </>
           ) : (
             /* State drilldown sidebar */
             <>
-              <div className="border-b border-[var(--siq-border)] pb-4">
+              <div className="shrink-0 border-b border-[var(--siq-border)] pb-4 pr-1">
                 <div className="text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">State Overview</div>
                 <div className="mt-2">
-                  <div className="font-serif-siq text-[28px] leading-none text-[color:var(--siq-fg)]">{STATE_NAMES[selectedState]}</div>
+                  <div className="font-sans-siq text-[28px] leading-none text-[color:var(--siq-fg)]">{STATE_NAMES[selectedState]}</div>
                   {(() => {
                     const v = STATE_SAVINGS_DATA[selectedState];
                     return v ? (
@@ -541,35 +690,37 @@ export function SavingsAtlas() {
                 </div>
               </div>
 
-              <div className="mt-4">
-                <div className="mb-3 text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">
+              <div className="mt-5 flex flex-col gap-3 py-1 pl-0.5 pr-2 md:min-h-0 md:flex-1">
+                <div className="shrink-0 text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">
                   Top ZIPs · Est. Savings/Yr
                 </div>
-                <div className="space-y-2 overflow-y-auto" style={{ maxHeight: 380 }}>
-                  {(stateZipEntries ?? []).slice(0, 15).map((z, i) => {
-                    const w = zipMax === zipMin ? 50 : ((z.savings - zipMin) / (zipMax - zipMin)) * 100;
-                    const isHov = hoveredZip === z.zip;
-                    return (
-                      <div
-                        key={z.zip}
-                        className="grid cursor-default grid-cols-[18px_1fr] gap-1.5 border-b border-[var(--siq-border)] pb-1.5 transition-colors"
-                        style={{ background: isHov ? "rgba(53,88,60,0.06)" : undefined }}
-                        onMouseEnter={() => setHoveredZip(z.zip)}
-                        onMouseLeave={() => setHoveredZip(null)}
-                      >
-                        <span className="pt-[1px] text-right text-[13px] text-[color:var(--siq-fg-muted)]">{String(i + 1).padStart(2, "0")}</span>
-                        <div className="flex flex-col gap-[2px]">
-                          <span className="text-[12px] tracking-[0.04em] text-[color:var(--siq-fg)]">
-                            {z.city}, <span className="font-medium">{z.zip}</span>
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <div className="h-[2px] bg-[color:var(--siq-fg)] transition-all duration-500" style={{ width: `${w}%` }} />
-                            <span className="whitespace-nowrap text-[13px] text-[color:var(--siq-fg-muted)]">{fmt$(z.savings)}</span>
+                <div className="max-h-[min(360px,52vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5 md:max-h-none md:min-h-0 md:flex-1">
+                  <div className="space-y-2 pb-3">
+                    {(stateZipEntries ?? []).slice(0, 15).map((z, i) => {
+                      const w = zipMax === zipMin ? 50 : ((z.savings - zipMin) / (zipMax - zipMin)) * 100;
+                      const isHov = hoveredZip === z.zip;
+                      return (
+                        <div
+                          key={z.zip}
+                          className="grid cursor-default grid-cols-[18px_1fr] gap-1.5 border-b border-[var(--siq-border)] pb-1.5 transition-colors"
+                          style={{ background: isHov ? "rgba(53,88,60,0.06)" : undefined }}
+                          onMouseEnter={() => setHoveredZip(z.zip)}
+                          onMouseLeave={() => setHoveredZip(null)}
+                        >
+                          <span className="pt-[1px] text-right text-[13px] text-[color:var(--siq-fg-muted)]">{String(i + 1).padStart(2, "0")}</span>
+                          <div className="flex flex-col gap-[2px]">
+                            <span className="text-[12px] tracking-[0.04em] text-[color:var(--siq-fg)]">
+                              {z.city}, <span className="font-medium">{z.zip}</span>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-[2px] bg-[color:var(--siq-fg)] transition-all duration-500" style={{ width: `${w}%` }} />
+                              <span className="whitespace-nowrap text-[13px] text-[color:var(--siq-fg-muted)]">{fmt$(z.savings)}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </>
