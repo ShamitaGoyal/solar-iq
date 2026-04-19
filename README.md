@@ -26,8 +26,9 @@ The platform focuses on customer acquisition as its primary value: helping Zenpo
 
 ## How We Built It
 
-**Data Sources**
+### Data
 
+#### Sources
 - **Zenpower / Records Dataset**: The core permit records database covering installs from multiple companies, including issue dates, system sizes in kW, and ZIP codes
 - **Sullivan Solar, Titan Solar, Sunrun, Freedom Forever**: Supplemental installer datasets, some address-based, which we parsed with regex to extract ZIP codes
 - **NREL Solar Resource API**: ZIP-level irradiance data (GHI, DNI, and optimal-tilt values) fetched with a multi-threaded script with exponential backoff and checkpoint resumption
@@ -35,27 +36,20 @@ The platform focuses on customer acquisition as its primary value: helping Zenpo
 - **US Census ZCTA Population Data**: Household counts per ZIP code used to project city-level full-adoption scenarios
 - **US Census ZIP Code Shapefiles / GeoJSON**: Geographic polygon boundaries for all ZIP codes, used to build the choropleth maps
 
-**Data Pipeline**
-
+#### Data Pipeline**
 Our Python pipeline (`pipeline.py`) runs several analytical queries against the cleaned and merged data to calculate savings and other metrics.
 
 The savings formula is: `avg_kw x tilt_annual x 365 x 0.80 x electricity_rate`, where tilt_annual is the optimal-tilt irradiance from NREL serving as a proxy for peak sun hours, and 0.80 accounts for real-world system losses.
 
-** Documentation **
+#### Documentation
 [`data/output/DATA_DICTIONARY.md`](data/output/DATA_DICTIONARY.md) 
 Documents every pipeline output file: what it contains, which raw sources it was built from, and which files are actually consumed by the site versus produced only for analysis.
 
 [`data/output/VISUALIZATION_DATA_MAP.md`](data/output/VISUALIZATION_DATA_MAP.md) 
 Traces each visualization on the site back to the exact data columns that power it, making it easy to understand what drives every number on screen.
 
-**Tech Stack**
-**Data**
-- Python
-- Pandas/Geopandas
-- Shapely (Python, geometry simplification)
-- NREL Solar Resource API, EIA 861, US Census, Zenpower dataset
-
-**Web Dev**
+### Web Development
+We used the following tools to design, build, and deploy our website:
 - React 19 + TypeScript, TanStack Start (SSR), TanStack Router
 - Vite
 - Tailwind CSS
@@ -63,6 +57,7 @@ Traces each visualization on the site back to the exact data columns that power 
 - D3-geo + TopoJSON (choropleth maps)
 - Three.js (3D isometric house on the hero)
 - Vercel (Deployment)
+- Claude Code
 
 ## Challenges We Ran Into
 
