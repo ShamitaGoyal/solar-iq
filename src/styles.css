@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -141,4 +142,62 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+/* ============ SolarIQ design tokens ============ */
+:root {
+  --siq-cream: #FCFAEF;
+  --siq-fg: #35583C;
+  --siq-fg-deep: #2a4530;
+  --siq-fg-light: #4a7a52;
+  --siq-fg-muted: #8aaa8e;
+  --siq-cream-soft: #eef5ef;
+  --siq-border: rgba(53, 88, 60, 0.18);
+  --siq-border-strong: rgba(53, 88, 60, 0.28);
+}
+
+@theme inline {
+  --color-siq-cream: var(--siq-cream);
+  --color-siq-fg: var(--siq-fg);
+  --color-siq-fg-deep: var(--siq-fg-deep);
+  --color-siq-fg-light: var(--siq-fg-light);
+  --color-siq-fg-muted: var(--siq-fg-muted);
+  --color-siq-cream-soft: var(--siq-cream-soft);
+  --font-mono-siq: "DM Mono", monospace;
+  --font-serif-siq: "Instrument Serif", serif;
+}
+
+.siq-fade-in {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.siq-fade-in.siq-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.siq-range {
+  width: 100%;
+  height: 2px;
+  background: rgba(53, 88, 60, 0.15);
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 1px;
+  cursor: pointer;
+}
+.siq-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--siq-fg);
+  border-radius: 50%;
+  border: 2px solid var(--siq-cream);
+}
+.siq-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--siq-fg);
+  border-radius: 50%;
+  border: 2px solid var(--siq-cream);
 }
