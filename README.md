@@ -37,11 +37,16 @@ The platform focuses on customer acquisition as its primary value: helping Zenpo
 
 **Data Pipeline**
 
-Our Python pipeline (`pipeline.py`) runs seven analytical queries against the cleaned and merged data to calculate savings and other metrics.
+Our Python pipeline (`pipeline.py`) runs several analytical queries against the cleaned and merged data to calculate savings and other metrics.
 
 The savings formula is: `avg_kw x tilt_annual x 365 x 0.80 x electricity_rate`, where tilt_annual is the optimal-tilt irradiance from NREL serving as a proxy for peak sun hours, and 0.80 accounts for real-world system losses.
 
-All our data sources, fields, and more are in the data dictionary MD file.
+** Documentation **
+[`data/output/DATA_DICTIONARY.md`](data/output/DATA_DICTIONARY.md) 
+Documents every pipeline output file: what it contains, which raw sources it was built from, and which files are actually consumed by the site versus produced only for analysis.
+
+[`data/output/VISUALIZATION_DATA_MAP.md`](data/output/VISUALIZATION_DATA_MAP.md) 
+Traces each visualization on the site back to the exact data columns that power it, making it easy to understand what drives every number on screen.
 
 **Tech Stack**
 **Data**
@@ -77,7 +82,7 @@ We learned a lot about working with geospatial data at scale, from navigating th
 
 We would love to connect with the Zenpower team to better understand their specific sales workflows and add features that map directly to how they operate. On the data side, we are interested in incorporating the DSIRE API to layer in state and local solar incentives, rebates, and net metering policies, since those can dramatically change the ROI calculation for a given customer. A more comprehensive regional policy view would make the savings estimates more accurate and the pitch to homeowners even stronger
 
-## Resources
+## External Resources
 
 - **ZenPower GitHub:** https://github.com/Zen-Power-Solar/DataHacks-ZenPower-Challenge-Spring-2026/tree/main
 - **Location Data by ZIP:** https://www.kaggle.com/datasets/manishagarwal/us-zip-geojson-w-approx-zcta-census-data?resource=download
