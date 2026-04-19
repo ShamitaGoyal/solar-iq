@@ -9,28 +9,11 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { TIMELINE_BY_YEAR } from "@/data/timelineData";
 
-const RAW_BY_YEAR: Record<number, Record<string, number>> = {
-  2010: { solarcity: 111, sullivan: 99, titan: 947, sunrun: 171, freedom_forever: 0 },
-  2011: { solarcity: 134, sullivan: 143, sunrun: 169, titan: 1163, freedom_forever: 0 },
-  2012: { solarcity: 243, sullivan: 281, sunrun: 150, titan: 1419, freedom_forever: 0 },
-  2013: { solarcity: 550, sullivan: 342, sunrun: 278, titan: 1525, freedom_forever: 0 },
-  2014: { solarcity: 671, sullivan: 385, sunrun: 513, titan: 2124, freedom_forever: 0 },
-  2015: { solarcity: 750, sullivan: 534, sunrun: 1284, titan: 2715, freedom_forever: 0 },
-  2016: { solarcity: 665, sullivan: 379, sunrun: 2404, titan: 4112, freedom_forever: 0 },
-  2017: { solarcity: 400, sullivan: 314, sunrun: 1604, titan: 7505, freedom_forever: 0 },
-  2018: { freedom_forever: 179, solarcity: 130, sullivan: 751, sunrun: 2458, titan: 7483 },
-  2019: { freedom_forever: 376, solarcity: 161, sullivan: 1110, sunrun: 3142, titan: 8107 },
-  2020: { freedom_forever: 1107, solarcity: 134, sullivan: 709, sunrun: 3201, titan: 11049 },
-  2021: { freedom_forever: 1627, solarcity: 121, sullivan: 603, sunrun: 4862, titan: 16131 },
-  2022: { freedom_forever: 2866, solarcity: 44, sullivan: 124, sunrun: 16126, titan: 16885 },
-  2023: { freedom_forever: 3632, sullivan: 49, sunrun: 14813, titan: 6661, solarcity: 1 },
-  2024: { freedom_forever: 4081, sunrun: 13281, solarcity: 0, sullivan: 0, titan: 0 },
-  2025: { freedom_forever: 1027, sunrun: 3520, solarcity: 0, sullivan: 0, titan: 0 },
-  2026: { freedom_forever: 14, sunrun: 1, solarcity: 0, sullivan: 0, titan: 0 },
-};
+const RAW_BY_YEAR = TIMELINE_BY_YEAR;
 
-const COMPANIES = ["solarcity", "sunrun", "titan", "freedom_forever", "sullivan"] as const;
+const COMPANIES = ["solarcity", "sunrun", "titan", "freedom_forever", "sullivan", "records"] as const;
 type Company = (typeof COMPANIES)[number];
 const LABELS: Record<Company, string> = {
   solarcity: "Tesla",
@@ -38,6 +21,7 @@ const LABELS: Record<Company, string> = {
   titan: "Titan",
   freedom_forever: "Freedom Forever",
   sullivan: "Sullivan",
+  records: "Unknown Source",
 };
 const COLORS: Record<Company, string> = {
   titan: "#35583C",
@@ -45,6 +29,7 @@ const COLORS: Record<Company, string> = {
   freedom_forever: "#c17f3a",
   sullivan: "#6a8fbf",
   solarcity: "#b05a5a",
+  records: "#9b7dc8",
 };
 
 const YEARS = Object.keys(RAW_BY_YEAR).map(Number).sort((a, b) => a - b);
@@ -55,7 +40,7 @@ const fmt = (n: number) => (n >= 10000 ? `${Math.round(n / 1000)}k` : n >= 1000 
 export function LineRace() {
   // Pre-compute cumulative totals
   const cumByYear = useMemo(() => {
-    const run: Record<Company, number> = { solarcity: 0, sunrun: 0, titan: 0, freedom_forever: 0, sullivan: 0 };
+    const run: Record<Company, number> = { solarcity: 0, sunrun: 0, titan: 0, freedom_forever: 0, sullivan: 0, records: 0 };
     const out: Record<number, Record<Company, number>> = {};
     for (const yr of YEARS) {
       for (const c of COMPANIES) run[c] += RAW_BY_YEAR[yr][c] || 0;
@@ -121,22 +106,22 @@ export function LineRace() {
   const progress = (yearIdx / (YEARS.length - 1)) * 100;
 
   return (
-    <section className="border-t border-[var(--siq-border-strong)] bg-[color:var(--siq-cream)] px-13 py-20">
+    <section className="flex h-full flex-col border-t border-[var(--siq-border-strong)] bg-[color:var(--siq-cream)] px-12 py-6">
       {/* Header */}
-      <div className="siq-fade-in mb-6 flex flex-wrap items-end justify-between gap-6 border-b border-[var(--siq-border)] pb-5">
+      <div className="siq-fade-in mb-4 flex flex-wrap items-end justify-between gap-4 border-b border-[var(--siq-border)] pb-4">
         <div>
-          <h2 className="font-serif-siq text-[40px] leading-[1.05] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
+          <h2 className="font-serif-siq text-[clamp(26px,3vw,38px)] leading-[1.05] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
             Number of Orphaned
             <br />
             <em className="italic text-[color:var(--siq-fg)]">Units by Company</em>
           </h2>
-          <p className="mt-3 max-w-[520px] text-[11px] leading-[1.6] text-[color:var(--siq-fg-muted)]">
+          <p className="mt-3 max-w-[520px] text-[13px] leading-[1.6] text-[color:var(--siq-fg-muted)]">
             All solar installers, with the exception of Sunrun, have gone out of business — leaving a gap in the market for solar panel maintenance.
           </p>
         </div>
         <div className="text-right">
-          <div className="font-serif-siq text-[68px] leading-none text-[color:var(--siq-fg)]">{yr}</div>
-          <div className="mt-1 text-[8px] uppercase tracking-[0.22em] text-[color:var(--siq-fg-muted)]">Current Year</div>
+          <div className="font-serif-siq text-[52px] leading-none text-[color:var(--siq-fg)]">{yr}</div>
+          <div className="mt-1 text-[13px] uppercase tracking-[0.22em] text-[color:var(--siq-fg-muted)]">Current Year</div>
         </div>
       </div>
 
@@ -144,14 +129,14 @@ export function LineRace() {
       <div className="siq-fade-in mb-3 flex items-center gap-2">
         <button
           onClick={togglePlay}
-          className="flex items-center gap-2 border border-[color:var(--siq-fg)] bg-[color:var(--siq-fg)] px-[18px] py-2 font-mono-siq text-[10px] uppercase tracking-[0.14em] text-[color:var(--siq-cream)] transition hover:bg-[color:var(--siq-fg-deep)]"
+          className="flex items-center gap-2 border border-[color:var(--siq-fg)] bg-[color:var(--siq-fg)] px-[18px] py-2 font-mono-siq text-[13px] uppercase tracking-[0.14em] text-[color:var(--siq-cream)] transition hover:bg-[color:var(--siq-fg-deep)]"
         >
           <span>{playing ? "⏸" : "▶"}</span>
           <span>{playing ? "Pause" : "Play"}</span>
         </button>
         <button
           onClick={reset}
-          className="flex items-center gap-2 border border-[var(--siq-border)] bg-transparent px-[18px] py-2 font-mono-siq text-[10px] uppercase tracking-[0.14em] text-[color:var(--siq-fg-muted)] transition hover:border-[color:var(--siq-fg)] hover:text-[color:var(--siq-fg)]"
+          className="flex items-center gap-2 border border-[var(--siq-border)] bg-transparent px-[18px] py-2 font-mono-siq text-[13px] uppercase tracking-[0.14em] text-[color:var(--siq-fg-muted)] transition hover:border-[color:var(--siq-fg)] hover:text-[color:var(--siq-fg)]"
         >
           ↺ Reset
         </button>
@@ -164,7 +149,7 @@ export function LineRace() {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="mb-4 flex justify-between text-[8px] tracking-[0.14em] text-[#b0ae9e]">
+      <div className="mb-4 flex justify-between text-[13px] tracking-[0.14em] text-[#b0ae9e]">
         <span>2010</span>
         <span>2013</span>
         <span>2016</span>
@@ -174,7 +159,7 @@ export function LineRace() {
       </div>
 
       {/* Chart */}
-      <div className="siq-fade-in h-[440px] w-full">
+      <div className="siq-fade-in min-h-0 flex-1 w-full" style={{ height: "min(300px, calc(100vh - 380px))" }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 20, right: 110, left: 30, bottom: 30 }}>
             <CartesianGrid stroke="#e8e6d8" vertical={false} />
@@ -226,13 +211,10 @@ export function LineRace() {
       </div>
 
       {/* Footer */}
-      <div className="mt-3 flex items-center justify-between border-t border-[var(--siq-border)] pt-4 text-[9px] uppercase tracking-[0.15em] text-[color:var(--siq-fg-muted)]">
-        <div className="flex gap-9">
-          <Stat label="Year Installs" value={yearTotal.toLocaleString()} />
-          <Stat label="Cumulative Total" value={cumTotal.toLocaleString()} />
-          <Stat label="Current Leader" value={LABELS[leader]} />
-        </div>
-        <span>Source: timeline_by_source.csv</span>
+      <div className="mt-3 flex items-center gap-9 border-t border-[var(--siq-border)] pt-3 text-[13px] uppercase tracking-[0.15em] text-[color:var(--siq-fg-muted)]">
+        <Stat label="Year Installs" value={yearTotal.toLocaleString()} />
+        <Stat label="Cumulative Total" value={cumTotal.toLocaleString()} />
+        <Stat label="Current Leader" value={LABELS[leader]} />
       </div>
     </section>
   );
@@ -241,7 +223,7 @@ export function LineRace() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="mb-[3px] text-[8px] tracking-[0.2em] text-[#b0ae9e]">{label}</div>
+      <div className="mb-[3px] text-[13px] tracking-[0.2em] text-[#b0ae9e]">{label}</div>
       <div className="text-[13px] font-medium tracking-[0.03em] text-[color:var(--siq-fg-deep)]">{value}</div>
     </div>
   );

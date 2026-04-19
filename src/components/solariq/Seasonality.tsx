@@ -10,21 +10,9 @@ import {
   YAxis,
   Cell,
 } from "recharts";
+import { SEASONALITY_DATA } from "@/data/seasonalityData";
 
-const SEASON_DATA = [
-  { month: 1, name: "Jan", installs: 9161 },
-  { month: 2, name: "Feb", installs: 8706 },
-  { month: 3, name: "Mar", installs: 10298 },
-  { month: 4, name: "Apr", installs: 10462 },
-  { month: 5, name: "May", installs: 10775 },
-  { month: 6, name: "Jun", installs: 12028 },
-  { month: 7, name: "Jul", installs: 12090 },
-  { month: 8, name: "Aug", installs: 13265 },
-  { month: 9, name: "Sep", installs: 12500 },
-  { month: 10, name: "Oct", installs: 14029 },
-  { month: 11, name: "Nov", installs: 12878 },
-  { month: 12, name: "Dec", installs: 12616 },
-];
+const SEASON_DATA = SEASONALITY_DATA.map((d) => ({ ...d }));
 
 const SEASONS: Record<string, { months: number[]; color: string; label: string; bandColor: string }> = {
   Winter: { months: [12, 1, 2], color: "#8bafd4", label: "Dec · Jan · Feb", bandColor: "rgba(139,175,212,0.55)" },
@@ -56,7 +44,7 @@ function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload || !payload.length) return null;
   return (
     <div
-      className="rounded border px-4 py-3 font-mono-siq text-[11px]"
+      className="rounded border px-4 py-3 font-mono-siq text-[13px]"
       style={{
         background: "#1e3325",
         borderColor: "rgba(255,255,255,0.1)",
@@ -66,7 +54,7 @@ function CustomTooltip({ active, payload, label }: any) {
       <div className="mb-2 font-serif-siq text-[17px]">{label}</div>
       {payload.map((p: any) => (
         <div key={p.dataKey} className="mt-1 flex items-center justify-between gap-6">
-          <span className="flex items-center text-[10px] uppercase tracking-[0.08em] text-[rgba(252,250,239,0.45)]">
+          <span className="flex items-center text-[13px] uppercase tracking-[0.08em] text-[rgba(252,250,239,0.45)]">
             <span
               className="mr-2 inline-block h-2 w-2 rounded-full"
               style={{ background: p.color || p.payload.color }}
@@ -122,9 +110,9 @@ function SeasonBubble({ name, season, delay }: { name: string; season: typeof SE
 
   return (
     <div
-      className="flex-1 rounded-2xl border px-[22px] py-5 transition-all duration-500"
+      className="flex-1 rounded-xl border px-5 py-4 transition-all duration-500"
       style={{
-        minWidth: 180,
+        minWidth: 160,
         background: "#2a4530",
         borderColor: "rgba(255,255,255,0.1)",
         opacity: visible ? 1 : 0,
@@ -133,17 +121,17 @@ function SeasonBubble({ name, season, delay }: { name: string; season: typeof SE
     >
       <div className="mb-2.5 flex items-center gap-2">
         <div className="h-[9px] w-[9px] shrink-0 rounded-full" style={{ background: season.color }} />
-        <div className="text-[9px] uppercase tracking-[0.2em] text-[rgba(255,255,255,0.45)]">{name}</div>
+        <div className="text-[12px] uppercase tracking-[0.2em] text-[rgba(255,255,255,0.45)]">{name}</div>
       </div>
-      <div className="mb-3 min-h-[1.4em] text-[11px] text-[rgba(255,255,255,0.7)]">
+      <div className="mb-3 min-h-[1.4em] text-[13px] text-[rgba(255,255,255,0.7)]">
         {typedLabel}
         {!doneTyping && <span className="ml-px animate-pulse text-[#a8e890]">|</span>}
       </div>
       <div className="mb-3 h-px bg-[rgba(255,255,255,0.08)]" />
-      <div className="font-serif-siq text-[28px] leading-none text-[#a8e890]">
+      <div className="font-serif-siq text-[34px] leading-none text-[#a8e890]">
         {count > 0 ? count.toLocaleString() : "—"}
       </div>
-      <div className="mt-1 text-[8px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.35)]">
+      <div className="mt-1.5 text-[12px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.35)]">
         Avg monthly installs
       </div>
     </div>
@@ -165,8 +153,8 @@ export function Seasonality() {
   }, []);
 
   return (
-    <section className="font-mono-siq" style={{ background: "#35583C", color: "#FCFAEF" }}>
-      <div className="mx-auto max-w-[1300px] px-[60px] py-[80px]">
+    <section className="flex h-full flex-col" style={{ background: "#35583C", color: "#FCFAEF", fontFamily: "Inter, system-ui, sans-serif" }}>
+      <div className="flex h-full flex-col px-12 py-6">
         <div className="siq-fade-in border-b pb-6" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
           <h2 className="font-serif-siq text-[clamp(30px,4vw,52px)] font-normal leading-[1.05]">
             Install <em className="italic text-[#a8e890]">Volume</em> by Month
@@ -175,17 +163,17 @@ export function Seasonality() {
 
         <div
           ref={ref}
-          className="siq-fade-in mt-7 border"
+          className="siq-fade-in mt-4 min-h-0 flex-1 border flex flex-col"
           style={{ background: "#2a4530", borderColor: "rgba(255,255,255,0.08)" }}
         >
           {/* Season strip */}
-          <div className="grid h-[6px] grid-cols-12 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+          <div className="grid h-[5px] shrink-0 grid-cols-12 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
             {SEASON_DATA.map((d) => (
               <div key={d.month} style={{ background: SEASONS[SEASON_BY_MONTH[d.month]].bandColor }} />
             ))}
           </div>
 
-          <div style={{ width: "100%", height: 400 }}>
+          <div className="min-h-0 flex-1">
             {inView && (
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={chartData} margin={{ top: 28, right: 30, bottom: 16, left: 30 }}>
@@ -224,7 +212,7 @@ export function Seasonality() {
           </div>
         </div>
 
-        <div className="siq-fade-in mt-7 flex flex-wrap gap-3.5">
+        <div className="siq-fade-in mt-4 flex flex-wrap gap-3">
           {Object.entries(SEASONS).map(([name, s], idx) => (
             <SeasonBubble key={name} name={name} season={s} delay={inView ? 600 + idx * 220 : 99999} />
           ))}

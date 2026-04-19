@@ -1,23 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -128,7 +114,7 @@
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
   --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
@@ -137,7 +123,6 @@
   * {
     border-color: var(--color-border);
   }
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -150,10 +135,10 @@
   --siq-fg: #35583C;
   --siq-fg-deep: #2a4530;
   --siq-fg-light: #4a7a52;
-  --siq-fg-muted: #8aaa8e;
+  --siq-fg-muted: #4e6e52;   /* was #8aaa8e — doubled contrast on cream */
   --siq-cream-soft: #eef5ef;
-  --siq-border: rgba(53, 88, 60, 0.18);
-  --siq-border-strong: rgba(53, 88, 60, 0.28);
+  --siq-border: rgba(53, 88, 60, 0.2);
+  --siq-border-strong: rgba(53, 88, 60, 0.32);
 }
 
 @theme inline {
@@ -165,22 +150,57 @@
   --color-siq-cream-soft: var(--siq-cream-soft);
   --font-mono-siq: "DM Mono", monospace;
   --font-serif-siq: "Instrument Serif", serif;
+  --font-sans-siq: "Inter", system-ui, sans-serif;
 }
 
+/* ============ Scroll snap ============ */
+.siq-scroll-root {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.siq-snap-section {
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ============ Section enter animation ============ */
+.siq-section-content {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.siq-snap-section.siq-in .siq-section-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* stagger children */
+.siq-section-content:nth-child(2) { transition-delay: 0.07s; }
+.siq-section-content:nth-child(3) { transition-delay: 0.14s; }
+.siq-section-content:nth-child(4) { transition-delay: 0.21s; }
+
+/* ============ Legacy fade-in (charts, inline elements) ============ */
 .siq-fade-in {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.75s ease, transform 0.75s ease;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 .siq-fade-in.siq-show {
   opacity: 1;
   transform: translateY(0);
 }
 
+/* ============ Range input ============ */
 .siq-range {
   width: 100%;
   height: 2px;
-  background: rgba(53, 88, 60, 0.15);
+  background: rgba(53, 88, 60, 0.18);
   -webkit-appearance: none;
   appearance: none;
   border-radius: 1px;
@@ -188,20 +208,21 @@
 }
 .siq-range::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   background: var(--siq-fg);
   border-radius: 50%;
   border: 2px solid var(--siq-cream);
 }
 .siq-range::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   background: var(--siq-fg);
   border-radius: 50%;
   border: 2px solid var(--siq-cream);
 }
 
+/* ============ Keyframes ============ */
 @keyframes siq-orb1 {
   0% { transform: translate(0, 0) scale(1); }
   33% { transform: translate(-24px, 18px) scale(1.04); }
