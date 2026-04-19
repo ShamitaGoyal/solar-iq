@@ -201,3 +201,24 @@
   border-radius: 50%;
   border: 2px solid var(--siq-cream);
 }
+
+@keyframes siq-orb1 {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-24px, 18px) scale(1.04); }
+  66% { transform: translate(12px, -14px) scale(0.97); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes siq-orb2 {
+  0% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(20px, -22px) scale(1.06); }
+  80% { transform: translate(-14px, 10px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes siq-bounce-left {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-10px); }
+}
+@keyframes siq-pulse {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
