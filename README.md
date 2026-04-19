@@ -41,6 +41,8 @@ Our Python pipeline (`pipeline.py`) runs seven analytical queries against the cl
 
 The savings formula is: `avg_kw x tilt_annual x 365 x 0.80 x electricity_rate`, where tilt_annual is the optimal-tilt irradiance from NREL serving as a proxy for peak sun hours, and 0.80 accounts for real-world system losses.
 
+All our data sources, fields, and more are in the data dictionary MD file.
+
 **Tech Stack**
 **Data**
 - Python
