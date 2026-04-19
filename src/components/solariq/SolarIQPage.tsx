@@ -10,19 +10,16 @@ import { Seasonality } from "@/components/solariq/Seasonality";
 import { SavingsAtlas } from "@/components/solariq/SavingsAtlas";
 import { LineRace } from "@/components/solariq/LineRace";
 
-// Nav items only list the 6 visualization sections; idx is the real section index
+// Nav dots map to visualization anchors; idx is the real section index in the scroll container.
 // Order: Hero(0) T1(1) T2(2) Atlas(3) T3(4) Calculator(5) T4(6) Cities(7) T5(8) Seasons(9) T6(10) LineRace(11)
 const NAV_SECTIONS = [
-  { label: "Home",       idx: 0  },
-  { label: "Atlas",      idx: 3  },
-  { label: "Calculator", idx: 5  },
-  { label: "Cities",     idx: 7  },
-  { label: "Seasons",    idx: 9  },
+  { label: "Home", idx: 0 },
+  { label: "Atlas", idx: 3 },
+  { label: "Calculator", idx: 5 },
+  { label: "Cities", idx: 7 },
+  { label: "Seasons", idx: 9 },
   { label: "Installers", idx: 11 },
 ];
-
-// Full section count (6 viz + 6 transitions)
-const TOTAL_SECTIONS = 12;
 
 export function SolarIQPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -80,20 +77,16 @@ export function SolarIQPage() {
     if (el) sectionRefs.current[i] = el;
   };
 
-  // Find which nav item is active based on current section
-  const activeNavIdx = NAV_SECTIONS.reduce(
-    (acc, s, i) => (activeIdx >= s.idx ? i : acc),
-    0,
-  );
+  const activeNavIdx = NAV_SECTIONS.reduce((acc, s, i) => (activeIdx >= s.idx ? i : acc), 0);
 
   return (
-    <div style={{ fontFamily: "Inter, system-ui, sans-serif" }} className="text-[color:var(--siq-fg-deep)]">
-      {/* Fixed nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex h-12 items-center justify-start bg-[color:var(--siq-cream)]/90 px-7 backdrop-blur-sm">
+    <div className="text-[color:var(--siq-fg-deep)]">
+      Top navbar (SOLAR IQ + section links) — disabled for now
+      <nav className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-center bg-[color:var(--siq-cream)]/90 px-4 backdrop-blur-sm sm:px-7">
         <button
           type="button"
           onClick={() => scrollToSection(0)}
-          className="flex cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-left text-[13px] font-semibold tracking-[0.06em] text-[color:var(--siq-fg-deep)] outline-none transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-[color:var(--siq-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--siq-cream)]"
+          className="absolute left-4 top-1/2 z-10 flex -translate-y-1/2 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-left text-[13px] font-semibold tracking-[0.06em] text-[color:var(--siq-fg-deep)] outline-none transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-[color:var(--siq-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--siq-cream)] sm:left-7"
           aria-label="Go to home / hero"
         >
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--siq-fg)]">
@@ -107,25 +100,31 @@ export function SolarIQPage() {
           </div>
           SOLAR IQ
         </button>
-        <div className="flex items-center gap-6 font-mono-siq text-[11px] uppercase tracking-[0.14em] text-[color:var(--siq-fg-muted)]">
-          {NAV_SECTIONS.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => scrollToSection(s.idx)}
-              className="transition-colors hover:text-[color:var(--siq-fg)]"
-              style={{ color: activeNavIdx === i ? "var(--siq-fg)" : undefined, fontWeight: activeNavIdx === i ? 500 : undefined }}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </nav>
 
-      {/* Dot nav — only 6 dots for the viz sections */}
+        {/* <div className="flex max-w-[calc(100vw-9rem)] items-center gap-0.5 overflow-x-auto rounded-full bg-[color:var(--siq-fg)] px-2 py-1.5 shadow-[0_2px_14px_rgba(53,88,60,0.22)] [scrollbar-width:none] sm:max-w-none sm:gap-1 sm:px-4 sm:py-2 [&::-webkit-scrollbar]:hidden">
+          {NAV_SECTIONS.map((s, i) => {
+            const active = activeNavIdx === i;
+            return (
+              <button
+                key={s.label}
+                type="button"
+                onClick={() => scrollToSection(s.idx)}
+                className={`relative shrink-0 cursor-pointer rounded-full border-0 bg-transparent px-2.5 py-1.5 font-mono-siq text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--siq-cream)] transition-[color,opacity] after:pointer-events-none after:absolute after:bottom-1 after:left-2 after:right-2 after:block after:h-[2px] after:origin-left after:rounded-sm after:bg-[color:var(--siq-cream)] after:transition-transform after:duration-300 after:ease-out after:content-[''] sm:px-3.5 sm:text-[11px] sm:tracking-[0.14em] ${active ? "after:scale-x-100" : "after:scale-x-0 hover:opacity-90"
+                  }`}
+              >
+                {s.label}
+              </button>
+            );
+          })}
+        </div> */}
+      </nav>
+     
+
       <div className="fixed right-5 top-1/2 z-50 -translate-y-1/2 flex flex-col gap-3">
         {NAV_SECTIONS.map((s, i) => (
           <button
-            key={i}
+            key={s.label}
+            type="button"
             onClick={() => scrollToSection(s.idx)}
             title={s.label}
             className="group relative flex items-center justify-end"
@@ -145,9 +144,7 @@ export function SolarIQPage() {
         ))}
       </div>
 
-      {/* Scroll container */}
       <div ref={scrollRef} className="siq-scroll-root">
-
         {/* ── 0: HERO ── */}
         <section
           ref={(el) => {
@@ -168,14 +165,12 @@ export function SolarIQPage() {
                 observeTargetRef={heroSectionRef}
                 hostClassName="min-w-0"
               >
-                <h1 className="siq-intro-split siq-section-content mb-5 font-serif-siq text-[clamp(44px,5.5vw,72px)] font-normal leading-[1.05] tracking-[-0.015em] text-[color:var(--siq-fg-deep)] opacity-0">
-                  See how much you
-                  <br />
-                  could be saving homeowners with <em className="not-italic italic text-[color:var(--siq-fg)]">solar.</em>
+                <h1 className="siq-intro-split siq-section-content mb-5 font-sans-siq text-[clamp(44px,5.5vw,60px)] font-normal leading-[0.98] tracking-[-0.015em] text-[color:var(--siq-fg-deep)] opacity-0">
+                  See how much you could be saving homeowners with solar.
                 </h1>
               </SolarIqLineSplitReveal>
               <p className="siq-section-content mb-8 max-w-[400px] text-[16px] leading-[1.75] text-[color:var(--siq-fg-muted)]">
-                Cross-reference permit activity, local irradiance scores, and utility rates to find where solar demand is likely to grow.
+                Cross-reference real permit data, local irradiance scores, and utility rates to see exactly what you'd save.
               </p>
               {/* <div className="siq-section-content mb-2.5 flex w-full max-w-[480px] border border-[var(--siq-border-strong)]">
                 <input
@@ -206,9 +201,18 @@ export function SolarIQPage() {
               <IsoHouse />
             </div>
           </div>
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-50">
-            <span className="font-mono-siq text-[10px] uppercase tracking-[0.2em] text-[color:var(--siq-fg-muted)]">scroll</span>
-            <div className="h-6 w-px bg-[color:var(--siq-fg-muted)]" style={{ animationName: "scrollBounce" }} />
+          {/* Scroll cue */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+            <span
+              className="font-mono-siq inline-block text-[10px] uppercase tracking-[0.2em] text-[color:var(--siq-fg-muted)]"
+              style={{ animation: "scrollTextBounce 1.7s ease-in-out infinite" }}
+            >
+              scroll
+            </span>
+            <div
+              className="h-6 w-px bg-[color:var(--siq-fg-muted)]"
+              style={{ animation: "scrollBounce 1.8s ease-in-out infinite" }}
+            />
           </div>
         </section>
 
@@ -237,7 +241,7 @@ export function SolarIQPage() {
 
         {/* ── 3: ATLAS ── */}
         <section ref={setRef(3)} className="siq-snap-section bg-[color:var(--siq-cream)]">
-          <div className="siq-section-content h-full pt-12">
+          <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
             <SavingsAtlas />
           </div>
         </section>
@@ -294,7 +298,7 @@ export function SolarIQPage() {
 
         {/* ── 7: CITY RANKINGS ── */}
         <section ref={setRef(7)} className="siq-snap-section bg-[color:var(--siq-cream)]">
-          <div className="siq-section-content h-full pt-12">
+          <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
             <CityRankings />
           </div>
         </section>
@@ -379,7 +383,7 @@ export function SolarIQPage() {
               every time.
             </h2>
             <p className="siq-ab-split-target siq-tc-sub mt-6 max-w-[580px] text-[clamp(20px,2.2vw,22px)] leading-[1.65] text-[#4a3828]">
-              Zenpower currently serves 4 states. See where to expand to next, based on per-capita annual savings.
+            View trends in installation volume month by month, season by season.
             </p>
           </SolarIqAtlasBridgeSplit>
         </section>
@@ -413,11 +417,12 @@ export function SolarIQPage() {
         </section>
 
         {/* ── 11: LINE RACE ── */}
-        <section ref={setRef(11)} className="siq-snap-section bg-[color:var(--siq-cream)]">
-          <div className="siq-section-content h-full pt-12">
+        <section ref={setRef(11)} className="siq-snap-section flex flex-col bg-[color:var(--siq-cream)]">
+          <div className="siq-section-content flex min-h-0 flex-1 flex-col pt-12">
             <LineRace />
           </div>
-          <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-10 py-3 border-t border-[var(--siq-border)]">
+          {/* Footer inside last section */}
+          <footer className="pt-[2rem] flex items-center justify-between px-10 py-3">
             <span className="font-mono-siq text-[11px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)]">
               Solar IQ · DataHacks 2026
             </span>
@@ -426,7 +431,6 @@ export function SolarIQPage() {
             </span>
           </footer>
         </section>
-
       </div>
 
       <style>{`
@@ -434,22 +438,9 @@ export function SolarIQPage() {
           0%, 100% { transform: scaleY(1); opacity: 0.5; }
           50% { transform: scaleY(1.4); opacity: 0.8; }
         }
-        .siq-tc-title {
-          opacity: 0;
-          transform: translateY(22px);
-          transition: opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
-                      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .siq-tc-sub {
-          opacity: 0;
-          transform: translateY(18px);
-          transition: opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.42s,
-                      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.42s;
-        }
-        .siq-in .siq-tc-title,
-        .siq-in .siq-tc-sub {
-          opacity: 1;
-          transform: translateY(0);
+        @keyframes scrollTextBounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(4px); }
         }
       `}</style>
     </div>
