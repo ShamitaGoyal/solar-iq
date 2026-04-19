@@ -170,14 +170,14 @@ export function IsoHouse() {
       mk(new T.BoxGeometry(0.13, h * 0.5, 0.13), 0xc4b894, x, h * 0.25, z);
       const t1 = new T.Mesh(
         new T.CylinderGeometry(0, r, h * 0.72, 7, 1),
-        new T.MeshLambertMaterial({ color: 0xa8c8a8 }),
+        new T.MeshLambertMaterial({ color: 0x8fc88f }),
       );
       t1.position.set(x, h * 0.9, z);
       t1.castShadow = true;
       scene.add(t1);
       const t2 = new T.Mesh(
         new T.CylinderGeometry(0, r * 0.75, h * 0.58, 7, 1),
-        new T.MeshLambertMaterial({ color: 0x88b090 }),
+        new T.MeshLambertMaterial({ color: 0x70a771 }),
       );
       t2.position.set(x, h * 1.15, z);
       t2.castShadow = true;
@@ -197,7 +197,7 @@ export function IsoHouse() {
     ].forEach(([sx, sz]) => {
       const s = new T.Mesh(
         new T.SphereGeometry(0.24, 8, 6),
-        new T.MeshLambertMaterial({ color: 0xb8d8b8 }),
+        new T.MeshLambertMaterial({ color: 0x9bcb9b }),
       );
       s.position.set(sx, 0.2, sz);
       s.castShadow = true;
