@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { ZIP_DATA } from "@/data/zipData";
+import { ZIP_CITY_FALLBACK } from "@/data/zipCityFallback";
 
 const fmt = (n: number) => Math.round(n).toLocaleString();
 
@@ -12,16 +13,36 @@ export function SavingsCalculator() {
   const lookup = useMemo(() => {
     const z = zip.trim();
     if (z.length < 5) return { status: "empty" as const };
-    if (ZIP_DATA[z]) return { status: "found" as const, key: z, data: ZIP_DATA[z] };
-    const found = Object.keys(ZIP_DATA).find(
-      (k) => k.trim() === z || k.replace(/\s/g, "") === z,
-    );
-    if (found) return { status: "found" as const, key: found, data: ZIP_DATA[found] };
+
+    // Direct lookup
+    const direct = ZIP_DATA[z] ?? ZIP_DATA[z.padStart(5, "0")];
+    const directKey = ZIP_DATA[z] ? z : z.padStart(5, "0");
+    if (direct) return { status: "found" as const, key: directKey, data: direct };
+
+    // City fallback — look up city from the fallback map, then find a ZIP in same city+state
+    const cityState = ZIP_CITY_FALLBACK[z] ?? ZIP_CITY_FALLBACK[z.padStart(5, "0")];
+    if (cityState) {
+      const [city, state] = cityState.split(",");
+      const match = Object.entries(ZIP_DATA).find(
+        ([, d]) => d.city.toLowerCase() === city.toLowerCase() && d.state === state,
+      );
+      if (match) {
+        return {
+          status: "city-fallback" as const,
+          key: match[0],
+          data: match[1],
+          originalCity: city,
+          originalState: state,
+          originalZip: z,
+        };
+      }
+    }
+
     return { status: "not-found" as const };
   }, [zip]);
 
   const result = useMemo(() => {
-    if (lookup.status !== "found") return null;
+    if (lookup.status !== "found" && lookup.status !== "city-fallback") return null;
     const d = lookup.data;
     const annualSpend = bill * 12;
     const annual = annualSpend * (d.offset / 100);
@@ -30,6 +51,9 @@ export function SavingsCalculator() {
       key: lookup.key,
       annual,
       monthly: annual / 12,
+      isFallback: lookup.status === "city-fallback",
+      originalCity: lookup.status === "city-fallback" ? lookup.originalCity : undefined,
+      originalZip: lookup.status === "city-fallback" ? lookup.originalZip : undefined,
     };
   }, [lookup, bill]);
 
@@ -47,75 +71,38 @@ export function SavingsCalculator() {
         : "Enter 5-digit ZIP"
       : lookup.status === "found"
         ? `✓ ${lookup.data.city}, ${lookup.data.state}`
-        : "ZIP not in dataset";
+        : lookup.status === "city-fallback"
+          ? `~ Nearest data: ${lookup.data.city}, ${lookup.data.state}`
+          : "ZIP not in dataset";
 
   const zipStatusColor =
     lookup.status === "found"
       ? "#4a7a3a"
-      : lookup.status === "not-found"
-        ? "#a05030"
-        : "var(--siq-fg-muted)";
+      : lookup.status === "city-fallback"
+        ? "#7a6a30"
+        : lookup.status === "not-found"
+          ? "#a05030"
+          : "var(--siq-fg-muted)";
 
   return (
-    <section className="siq-fade-in border-b border-[rgba(53,88,60,0.1)] px-13 py-13">
+    <section className="siq-fade-in flex h-full flex-col border-b border-[rgba(53,88,60,0.1)] px-12 py-6">
       {/* HEADER */}
-      <div className="mb-3 flex items-baseline justify-between border-b border-[rgba(53,88,60,0.1)] pb-5">
-        <div className="text-[9px] uppercase tracking-[0.2em] text-[color:var(--siq-fg-muted)]">
-          Q1 Solar Performance · 1,017 ZIP Codes
-        </div>
-        <h2 className="font-serif-siq text-[clamp(32px,4vw,56px)] font-normal leading-[1.05]">
+      <div className="mb-4 flex items-baseline justify-between border-b border-[rgba(53,88,60,0.1)] pb-4">
+        <h2 className="font-serif-siq text-[clamp(28px,3.5vw,48px)] font-normal leading-[1.05]">
           Potential <em className="not-italic italic text-[color:var(--siq-fg)]">Savings</em> Calculator
         </h2>
-      </div>
-
-      {/* METHODOLOGY */}
-      <div className="mb-9 flex flex-col gap-5 border-b border-[rgba(53,88,60,0.1)] pb-9 pt-5 md:flex-row md:gap-12">
-        {[
-          {
-            n: "01",
-            t: "Your Bill → kWh",
-            d: "Monthly dollar spend converts to kilowatt-hours using your ZIP's local utility rate.",
-            f: "Monthly $ ÷ rate = kWh",
-          },
-          {
-            n: "02",
-            t: "ZIP Solar Profile",
-            d: "Each ZIP carries a precomputed offset % from real installations — irradiance, system size, efficiency.",
-            f: "avg_pct_consumption_offset",
-          },
-          {
-            n: "03",
-            t: "Personalized Savings",
-            d: "Offset % applied to your actual annual spend — not a national average household.",
-            f: "offset% × (bill × 12)",
-          },
-        ].map((s) => (
-          <div key={s.n} className="flex flex-1 items-start gap-3">
-            <div className="font-serif-siq text-[28px] leading-none text-[rgba(53,88,60,0.3)]">
-              {s.n}
-            </div>
-            <div>
-              <div className="mb-1 text-[10px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-deep)]">
-                {s.t}
-              </div>
-              <div className="text-[11px] leading-[1.65] text-[color:var(--siq-fg-muted)]">
-                {s.d}
-                <div className="mt-1.5 inline-block border-l-2 border-[color:var(--siq-fg)] pl-2 italic text-[color:var(--siq-fg)]">
-                  {s.f}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+        <p className="max-w-[340px] text-right text-[14px] leading-[1.6] text-[color:var(--siq-fg-muted)]">
+          Enter your ZIP and monthly bill — we match you to real solar performance data.
+        </p>
       </div>
 
       {/* CALC GRID */}
-      <div className="grid min-h-[560px] grid-cols-1 border border-[rgba(53,88,60,0.2)] md:grid-cols-2">
+      <div className="grid min-h-0 flex-1 grid-cols-1 border border-[rgba(53,88,60,0.2)] md:grid-cols-2">
         {/* LEFT */}
         <div className="flex flex-col overflow-hidden border-b border-[rgba(53,88,60,0.2)] md:border-b-0 md:border-r">
           <div className="flex-1 px-11 py-10">
             <div className="mb-9">
-              <label className="mb-3 block text-[9px] uppercase tracking-[0.18em] text-[color:var(--siq-fg-muted)]">
+              <label className="mb-3 block text-[12px] uppercase tracking-[0.18em] text-[color:var(--siq-fg-muted)]">
                 Your ZIP Code
               </label>
               <div className="flex items-stretch border border-[rgba(53,88,60,0.2)]">
@@ -129,7 +116,7 @@ export function SavingsCalculator() {
                   className="w-[150px] bg-transparent px-4 py-3 font-mono-siq text-[26px] tracking-[0.1em] text-[color:var(--siq-fg-deep)] outline-none"
                 />
                 <div
-                  className="flex flex-1 items-center border-l border-[rgba(53,88,60,0.1)] px-4 text-[11px] leading-[1.4]"
+                  className="flex flex-1 items-center border-l border-[rgba(53,88,60,0.1)] px-4 text-[13px] leading-[1.4]"
                   style={{ color: zipStatusColor }}
                 >
                   {zipStatusText}
@@ -138,7 +125,7 @@ export function SavingsCalculator() {
             </div>
 
             <div>
-              <label className="mb-3 block text-[9px] uppercase tracking-[0.18em] text-[color:var(--siq-fg-muted)]">
+              <label className="mb-3 block text-[12px] uppercase tracking-[0.18em] text-[color:var(--siq-fg-muted)]">
                 Monthly Electricity Bill
               </label>
               <div className="mb-4 font-serif-siq text-[52px] leading-none text-[color:var(--siq-fg-deep)]">
@@ -154,7 +141,7 @@ export function SavingsCalculator() {
                 onChange={(e) => setBill(parseInt(e.target.value, 10))}
                 className="siq-range"
               />
-              <div className="mt-2 flex justify-between text-[9px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)]">
+              <div className="mt-2 flex justify-between text-[12px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)]">
                 <span>$50 / mo</span>
                 <span>$800 / mo</span>
               </div>
@@ -252,11 +239,16 @@ export function SavingsCalculator() {
             </div>
           ) : (
             <div className="relative">
-              <div className="mb-7 text-[9px] uppercase tracking-[0.18em] text-white/45">
+              <div className="mb-7 text-[12px] uppercase tracking-[0.18em] text-white/45">
                 {result.d.city}, {result.d.state} · ZIP {result.key}
+                {result.isFallback && (
+                  <div className="mt-1 text-[13px] normal-case tracking-[0.06em] text-white/35">
+                    Nearest available data for {result.originalCity} (ZIP {result.originalZip})
+                  </div>
+                )}
               </div>
               <div className="mb-10">
-                <div className="mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
+                <div className="mb-2 text-[12px] uppercase tracking-[0.15em] text-white/40">
                   Estimated Annual Savings
                 </div>
                 <div
@@ -282,7 +274,7 @@ export function SavingsCalculator() {
                     <div className="font-serif-siq text-[26px] leading-none text-[color:var(--siq-cream)]">
                       {c.val}
                     </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.13em] text-white/40">
+                    <div className="mt-1 text-[12px] uppercase tracking-[0.13em] text-white/40">
                       {c.lbl}
                     </div>
                   </div>
@@ -290,7 +282,7 @@ export function SavingsCalculator() {
               </div>
 
               <div className="relative">
-                <div className="mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
+                <div className="mb-2 text-[12px] uppercase tracking-[0.15em] text-white/40">
                   Consumption Offset
                 </div>
                 <div className="h-1 overflow-hidden bg-white/10">

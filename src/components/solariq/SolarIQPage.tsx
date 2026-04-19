@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IsoHouse } from "@/components/solariq/IsoHouse";
-import { useFadeIn } from "@/components/solariq/useFadeIn";
 import { SavingsCalculator } from "@/components/solariq/SavingsCalculator";
 import { CityRankings } from "@/components/solariq/CityRankings";
 import { Seasonality } from "@/components/solariq/Seasonality";
 import { SavingsAtlas } from "@/components/solariq/SavingsAtlas";
 import { LineRace } from "@/components/solariq/LineRace";
 
+const SECTIONS = [
+  { label: "Home" },
+  { label: "Atlas" },
+  { label: "Calculator" },
+  { label: "Cities" },
+  { label: "Seasons" },
+  { label: "Installers" },
+];
+
 export function SolarIQPage() {
-  useFadeIn();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<HTMLElement[]>([]);
+  const [activeIdx, setActiveIdx] = useState(0);
   const [zip, setZip] = useState("");
   const [billIn, setBillIn] = useState("");
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -22,11 +32,55 @@ export function SolarIQPage() {
     }
   };
 
+  // Track active section via IntersectionObserver on the scroll container
+  useEffect(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          const idx = sectionRefs.current.indexOf(e.target as HTMLElement);
+          if (idx === -1) return;
+          if (e.isIntersecting) {
+            setActiveIdx(idx);
+            (e.target as HTMLElement).classList.add("siq-in");
+          }
+        });
+        // Also trigger fade-ins inside newly visible sections
+        document.querySelectorAll<HTMLElement>(".siq-fade-in:not(.siq-show)").forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            el.classList.add("siq-show");
+          }
+        });
+      },
+      { root, threshold: 0.45 },
+    );
+
+    sectionRefs.current.forEach((el) => el && obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const scrollToSection = (i: number) => {
+    sectionRefs.current[i]?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const setRef = (i: number) => (el: HTMLElement | null) => {
+    if (el) sectionRefs.current[i] = el;
+  };
+
   return (
-    <div className="bg-[color:var(--siq-cream)] font-mono-siq text-[color:var(--siq-fg-deep)]">
-      {/* NAV */}
-      <nav className="siq-fade-in flex h-[52px] items-center bg-[color:var(--siq-cream)] pl-[2.5rem] pr-13">
-        <div className="flex items-center gap-[9px] text-[13px] font-medium tracking-[0.07em] text-[color:var(--siq-fg-deep)]">
+    <div
+      style={{ fontFamily: "Inter, system-ui, sans-serif" }}
+      className="text-[color:var(--siq-fg-deep)]"
+    >
+      {/* Fixed nav */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex h-12 items-center justify-between bg-[color:var(--siq-cream)]/90 px-10 backdrop-blur-sm border-b border-[var(--siq-border)]">
+        <button
+          onClick={() => scrollToSection(0)}
+          className="flex items-center gap-2 text-[13px] font-semibold tracking-[0.06em] text-[color:var(--siq-fg-deep)]"
+        >
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--siq-fg)]">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <circle cx="6" cy="6" r="2.2" fill="#FCFAEF" />
@@ -37,84 +91,154 @@ export function SolarIQPage() {
             </svg>
           </div>
           SOLAR IQ
+        </button>
+        <div className="flex items-center gap-6 font-mono-siq text-[11px] uppercase tracking-[0.14em] text-[color:var(--siq-fg-muted)]">
+          {SECTIONS.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => scrollToSection(i)}
+              className="transition-colors hover:text-[color:var(--siq-fg)]"
+              style={{ color: activeIdx === i ? "var(--siq-fg)" : undefined, fontWeight: activeIdx === i ? 500 : undefined }}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="grid min-h-[calc(100vh-52px)] grid-cols-1 bg-[color:var(--siq-cream)] md:grid-cols-2">
-        <div className="flex flex-col justify-center px-13 pb-13 pt-[4rem]">
-          <div className="siq-fade-in mb-7 inline-flex w-fit items-center gap-[7px] rounded-full border border-[rgba(53,88,60,0.22)] px-4 py-1.5">
-            <div className="h-[5px] w-[5px] shrink-0 rounded-full bg-[color:var(--siq-fg)]" />
-            <span className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-deep)]">
-              Solar intelligence
-            </span>
-          </div>
-          <h1 className="siq-fade-in mb-5 font-serif-siq text-[68px] font-normal leading-[1.05] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
-            Your home could
-            <br />
-            run on <em className="not-italic italic text-[color:var(--siq-fg)]">sunlight.</em>
-          </h1>
-          <p className="siq-fade-in mb-9 max-w-[400px] text-[14px] font-light leading-[1.85] text-[color:var(--siq-fg-muted)]">
-            Enter your zip and electricity bill. We cross-reference real permit data, local irradiance scores, and
-            utility rates to show exactly what you'd save.
-          </p>
-          <div className="siq-fade-in mb-2.5 flex w-full max-w-[480px] border border-[var(--siq-border-strong)]">
-            <input
-              className="h-12 flex-1 border-r border-[var(--siq-border)] bg-transparent px-4 font-mono-siq text-[13px] text-[color:var(--siq-fg-deep)] outline-none placeholder:text-[color:var(--siq-fg-muted)]"
-              placeholder="ZIP code"
-              maxLength={5}
-              value={zip}
-              onChange={(e) => setZip(e.target.value)}
-            />
-            <input
-              className="h-12 flex-1 border-r border-[var(--siq-border)] bg-transparent px-4 font-mono-siq text-[13px] text-[color:var(--siq-fg-deep)] outline-none placeholder:text-[color:var(--siq-fg-muted)]"
-              placeholder="Monthly bill $"
-              value={billIn}
-              onChange={(e) => setBillIn(e.target.value)}
-            />
-            <button
-              onClick={onAnalyze}
-              className="h-12 shrink-0 cursor-pointer whitespace-nowrap bg-[color:var(--siq-fg)] px-6 font-mono-siq text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--siq-cream)] transition-colors hover:bg-[color:var(--siq-fg-deep)]"
-            >
-              Analyze
-            </button>
-          </div>
-          <div
-            className="min-h-4 text-[11px] tracking-[0.03em]"
-            style={{ color: msg?.ok === false ? "#a04040" : "var(--siq-fg-light)" }}
+      {/* Dot nav */}
+      <div className="fixed right-5 top-1/2 z-50 -translate-y-1/2 flex flex-col gap-3">
+        {SECTIONS.map((s, i) => (
+          <button
+            key={i}
+            onClick={() => scrollToSection(i)}
+            title={s.label}
+            className="group relative flex items-center justify-end"
           >
-            {msg?.text}
+            <span className="mr-2 hidden text-[10px] font-medium uppercase tracking-[0.1em] text-[color:var(--siq-fg)] opacity-0 transition-opacity group-hover:opacity-100">
+              {s.label}
+            </span>
+            <span
+              className="block rounded-full transition-all duration-300"
+              style={{
+                width: activeIdx === i ? 10 : 6,
+                height: activeIdx === i ? 10 : 6,
+                background: activeIdx === i ? "var(--siq-fg)" : "rgba(53,88,60,0.3)",
+              }}
+            />
+          </button>
+        ))}
+      </div>
+
+      {/* Scroll container */}
+      <div ref={scrollRef} className="siq-scroll-root">
+
+        {/* ── 0: HERO ── */}
+        <section ref={setRef(0)} className="siq-snap-section siq-in bg-[color:var(--siq-cream)]">
+          <div className="grid h-full grid-cols-1 pt-12 md:grid-cols-2">
+            <div className="flex flex-col justify-center px-12 py-10">
+              <div className="siq-section-content mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(53,88,60,0.22)] px-4 py-1.5">
+                <div className="h-[5px] w-[5px] shrink-0 rounded-full bg-[color:var(--siq-fg)]" />
+                <span className="text-[12px] font-medium uppercase tracking-[0.12em] text-[color:var(--siq-fg-deep)]">
+                  Solar intelligence
+                </span>
+              </div>
+              <h1 className="siq-section-content mb-5 font-serif-siq text-[clamp(44px,5.5vw,72px)] font-normal leading-[1.05] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
+                Your home could
+                <br />
+                run on <em className="not-italic italic text-[color:var(--siq-fg)]">sunlight.</em>
+              </h1>
+              <p className="siq-section-content mb-8 max-w-[400px] text-[16px] leading-[1.75] text-[color:var(--siq-fg-muted)]">
+                Cross-reference real permit data, local irradiance scores, and utility rates to see exactly what you'd save.
+              </p>
+              <div className="siq-section-content mb-2.5 flex w-full max-w-[480px] border border-[var(--siq-border-strong)]">
+                <input
+                  className="h-12 flex-1 border-r border-[var(--siq-border)] bg-transparent px-4 font-mono-siq text-[14px] text-[color:var(--siq-fg-deep)] outline-none placeholder:text-[color:var(--siq-fg-muted)]"
+                  placeholder="ZIP code"
+                  maxLength={5}
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                />
+                <input
+                  className="h-12 flex-1 border-r border-[var(--siq-border)] bg-transparent px-4 font-mono-siq text-[14px] text-[color:var(--siq-fg-deep)] outline-none placeholder:text-[color:var(--siq-fg-muted)]"
+                  placeholder="Monthly bill $"
+                  value={billIn}
+                  onChange={(e) => setBillIn(e.target.value)}
+                />
+                <button
+                  onClick={onAnalyze}
+                  className="h-12 shrink-0 cursor-pointer whitespace-nowrap bg-[color:var(--siq-fg)] px-6 font-mono-siq text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--siq-cream)] transition-colors hover:bg-[color:var(--siq-fg-deep)]"
+                >
+                  Analyze
+                </button>
+              </div>
+              <div className="min-h-5 text-[13px]" style={{ color: msg?.ok === false ? "#a04040" : "var(--siq-fg-light)" }}>
+                {msg?.text}
+              </div>
+            </div>
+            <div className="relative overflow-hidden bg-[color:var(--siq-cream)] pt-12">
+              <IsoHouse />
+            </div>
           </div>
-        </div>
-        <div className="relative min-h-[520px] overflow-visible bg-[color:var(--siq-cream)]">
-          <IsoHouse />
-        </div>
-      </section>
+          {/* Scroll cue */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-50">
+            <span className="font-mono-siq text-[10px] uppercase tracking-[0.2em] text-[color:var(--siq-fg-muted)]">scroll</span>
+            <div className="h-6 w-px bg-[color:var(--siq-fg-muted)]" style={{ animation: "siq-bounce-left 1.8s ease-in-out infinite", animationName: "scrollBounce" }} />
+          </div>
+        </section>
 
-      {/* NATIONAL ATLAS (vis1) */}
-      <SavingsAtlas />
+        {/* ── 1: ATLAS ── */}
+        <section ref={setRef(1)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+          <div className="siq-section-content h-full pt-12">
+            <SavingsAtlas />
+          </div>
+        </section>
 
-      {/* SAVINGS CALCULATOR (vis2) */}
-      <SavingsCalculator />
+        {/* ── 2: CALCULATOR ── */}
+        <section ref={setRef(2)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+          <div className="siq-section-content h-full pt-12">
+            <SavingsCalculator />
+          </div>
+        </section>
 
-      {/* CITY RANKINGS (vis3) */}
-      <CityRankings />
+        {/* ── 3: CITY RANKINGS ── */}
+        <section ref={setRef(3)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+          <div className="siq-section-content h-full pt-12">
+            <CityRankings />
+          </div>
+        </section>
 
-      {/* SEASONALITY (vis4) */}
-      <Seasonality />
+        {/* ── 4: SEASONALITY ── */}
+        <section ref={setRef(4)} className="siq-snap-section" style={{ background: "#35583C" }}>
+          <div className="siq-section-content h-full pt-12">
+            <Seasonality />
+          </div>
+        </section>
 
-      {/* LINE RACE (vis5) */}
-      <LineRace />
+        {/* ── 5: LINE RACE ── */}
+        <section ref={setRef(5)} className="siq-snap-section bg-[color:var(--siq-cream)]">
+          <div className="siq-section-content h-full pt-12">
+            <LineRace />
+          </div>
+          {/* Footer inside last section */}
+          <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-10 py-3 border-t border-[var(--siq-border)]">
+            <span className="font-mono-siq text-[11px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)]">
+              Solar IQ · DataHacks 2026
+            </span>
+            <span className="font-mono-siq text-[11px] text-[color:var(--siq-fg-muted)]">
+              Powered by Gemini · NREL · EIA · Zen Power Dataset
+            </span>
+          </footer>
+        </section>
 
-      {/* FOOTER */}
-      <footer className="flex items-center justify-between px-13 py-5">
-        <span className="text-[10px] uppercase tracking-[0.1em] text-[color:var(--siq-fg-muted)]">
-          Solar IQ · DataHacks 2026
-        </span>
-        <span className="text-[10px] text-[color:var(--siq-fg-muted)]">
-          Powered by Gemini · NREL · EIA · Zen Power Dataset
-        </span>
-      </footer>
+      </div>
+
+      <style>{`
+        @keyframes scrollBounce {
+          0%, 100% { transform: scaleY(1); opacity: 0.5; }
+          50% { transform: scaleY(1.4); opacity: 0.8; }
+        }
+      `}</style>
     </div>
   );
 }

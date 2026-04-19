@@ -26,7 +26,15 @@ export function CityRankings() {
 
   const top5 = useMemo(() => {
     if (!state) return [];
-    return RAW_DATA.filter((d) => d.state === state)
+    // Deduplicate by city name, keeping the entry with highest install_count
+    const byCity = new Map<string, (typeof RAW_DATA)[number]>();
+    for (const d of RAW_DATA.filter((d) => d.state === state)) {
+      const existing = byCity.get(d.city);
+      if (!existing || d.install_count > existing.install_count) {
+        byCity.set(d.city, d);
+      }
+    }
+    return [...byCity.values()]
       .sort((a, b) => b.install_count - a.install_count)
       .slice(0, 5);
   }, [state]);
@@ -71,13 +79,13 @@ export function CityRankings() {
   }, [top5]);
 
   return (
-    <section className="siq-fade-in border-b border-[rgba(53,88,60,0.2)] px-13 py-13">
-      <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4 border-b border-[rgba(53,88,60,0.2)] pb-5">
+    <section className="siq-fade-in flex h-full flex-col border-b border-[rgba(53,88,60,0.2)] px-12 py-6">
+      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4 border-b border-[rgba(53,88,60,0.2)] pb-4">
         <div>
-          <p className="mb-1 text-[10px] uppercase tracking-[0.25em] text-[color:var(--siq-fg)]">
+          <p className="mb-1 text-[13px] uppercase tracking-[0.25em] text-[color:var(--siq-fg)]">
             City rankings
           </p>
-          <h2 className="font-serif-siq text-[clamp(28px,4vw,48px)] leading-[1.1] text-[color:var(--siq-fg-deep)]">
+          <h2 className="font-serif-siq text-[clamp(26px,3.5vw,42px)] leading-[1.1] text-[color:var(--siq-fg-deep)]">
             Top 5 Cities
             <br />
             by Permit Volume
@@ -85,7 +93,7 @@ export function CityRankings() {
         </div>
       </div>
 
-      <div className="mb-12 flex flex-wrap items-center gap-8">
+      <div className="mb-5 flex flex-wrap items-center gap-6">
         <div className="relative">
           <select
             value={state}
@@ -130,7 +138,7 @@ export function CityRankings() {
               return (
                 <div
                   key={`${d.city}-${i}`}
-                  className="group grid grid-cols-[2rem_1fr_auto] items-center gap-6 border-b border-[rgba(53,88,60,0.12)] py-6 transition-all duration-500"
+                  className="group grid grid-cols-[2rem_1fr_auto] items-center gap-6 border-b border-[rgba(53,88,60,0.12)] py-4 transition-all duration-500"
                   style={{
                     opacity: visible ? 1 : 0,
                     transform: visible ? "translateX(0)" : "translateX(-20px)",
@@ -148,7 +156,7 @@ export function CityRankings() {
                         className="relative h-full overflow-visible bg-[color:var(--siq-fg)] transition-[width] duration-[900ms] ease-out"
                         style={{ width: `${barFills[i] ?? 0}%` }}
                       >
-                        <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 whitespace-nowrap bg-[color:var(--siq-fg)] px-3 py-2 font-mono-siq text-[11px] tracking-[0.08em] text-[color:var(--siq-cream)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                        <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 whitespace-nowrap bg-[color:var(--siq-fg)] px-3 py-2 font-mono-siq text-[13px] tracking-[0.08em] text-[color:var(--siq-cream)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                           ⚡ {kwLabel}
                           <span
                             className="absolute left-1/2 top-full -translate-x-1/2 border-[5px] border-transparent"
@@ -162,7 +170,7 @@ export function CityRankings() {
                     <span className="font-serif-siq text-[2rem] leading-none text-[color:var(--siq-fg-deep)]">
                       {fmtNum(d.install_count)}
                     </span>
-                    <span className="text-[9px] uppercase tracking-[0.2em] text-[rgba(26,26,24,0.45)]">
+                    <span className="text-[12px] uppercase tracking-[0.2em] text-[rgba(26,26,24,0.45)]">
                       Permits
                     </span>
                   </div>
@@ -173,7 +181,7 @@ export function CityRankings() {
 
           {summary && (
             <div
-              className="mt-12 grid border border-[rgba(53,88,60,0.2)] transition-all duration-700 ease-out"
+              className="mt-6 grid border border-[rgba(53,88,60,0.2)] transition-all duration-700 ease-out"
               style={{
                 gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
                 opacity: stripVisible ? 1 : 0,
@@ -193,7 +201,7 @@ export function CityRankings() {
                   <span className="font-serif-siq text-[1.8rem] text-[color:var(--siq-fg)]">
                     {c.val}
                   </span>
-                  <span className="text-[9px] uppercase tracking-[0.18em] text-[rgba(26,26,24,0.5)]">
+                  <span className="text-[12px] uppercase tracking-[0.18em] text-[rgba(26,26,24,0.5)]">
                     {c.desc}
                   </span>
                 </div>
