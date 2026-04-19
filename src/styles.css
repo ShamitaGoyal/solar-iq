@@ -1,11 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
 
+/* Overused Grotesk — variable font (OFL), https://github.com/RandomMaerks/Overused-Grotesk */
+@font-face {
+  font-family: "Overused Grotesk";
+  src: url("/fonts/OverusedGrotesk-VF.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -126,6 +137,7 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
 }
 
@@ -149,8 +161,7 @@
   --color-siq-fg-muted: var(--siq-fg-muted);
   --color-siq-cream-soft: var(--siq-cream-soft);
   --font-mono-siq: "DM Mono", monospace;
-  --font-serif-siq: "Instrument Serif", serif;
-  --font-sans-siq: "Inter", system-ui, sans-serif;
+  --font-sans-siq: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ============ Scroll snap ============ */
@@ -234,6 +245,30 @@
   40% { transform: translate(20px, -22px) scale(1.06); }
   80% { transform: translate(-14px, 10px) scale(0.95); }
   100% { transform: translate(0, 0) scale(1); }
+}
+/* Marching “dots” along SVG ring (stroke-dash period must match keyframe offset). */
+@keyframes siq-dotted-orbit-march {
+  to {
+    stroke-dashoffset: -11.5;
+  }
+}
+.siq-dotted-orbit-ring {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 2.5 9;
+  stroke-dashoffset: 0;
+  animation-name: siq-dotted-orbit-march;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-duration: var(--siq-dot-march-duration, 6s);
+}
+.siq-dotted-orbit-ring--rev {
+  animation-direction: reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .siq-dotted-orbit-ring {
+    animation: none;
+  }
 }
 @keyframes siq-bounce-left {
   0%, 100% { transform: translateX(0); }
