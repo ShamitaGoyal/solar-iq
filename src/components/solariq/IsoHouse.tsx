@@ -62,21 +62,21 @@ export function IsoHouse() {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), 0xd8e8d8, 0, -0.09, 0, false, true);
-    mk(new T.BoxGeometry(0.9, 0.04, 2.5), 0xeae0c4, 0, 0.03, 2.2, false, false);
-    mk(new T.BoxGeometry(4.2, 0.18, 3.5), 0xdccfb4, 0, 0.09, 0);
-    mk(new T.BoxGeometry(4.0, 2.1, 3.3), 0xf4ecdc, 0, 1.14, 0);
-    mk(new T.BoxGeometry(4.2, 0.12, 3.5), 0xd6b898, 0, 2.25, 0);
+    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), 0x70a771, 0, -0.09, 0, false, true);
+    mk(new T.BoxGeometry(0.9, 0.04, 2.5), 0xf2ead0, 0, 0.03, 2.2, false, false);
+    mk(new T.BoxGeometry(4.2, 0.18, 3.5), 0xe8d4a8, 0, 0.09, 0);
+    mk(new T.BoxGeometry(4.0, 2.1, 3.3), 0xffd866, 0, 1.14, 0);
+    mk(new T.BoxGeometry(4.2, 0.12, 3.5), 0xe89060, 0, 2.25, 0);
 
     const rg = new T.CylinderGeometry(0, 2.7, 1.45, 4, 1);
     rg.rotateY(Math.PI / 4);
-    const roofM = new T.Mesh(rg, new T.MeshLambertMaterial({ color: 0xe89880 }));
+    const roofM = new T.Mesh(rg, new T.MeshLambertMaterial({ color: 0xd96a4a }));
     roofM.position.set(0, 3.02, 0);
     roofM.castShadow = true;
     scene.add(roofM);
     const roofU = new T.Mesh(
       new T.CylinderGeometry(0, 2.75, 1.47, 4, 1),
-      new T.MeshLambertMaterial({ color: 0xc88478 }),
+      new T.MeshLambertMaterial({ color: 0xb5523a }),
     );
     roofU.position.set(0, 3.01, 0);
     roofU.rotation.y = Math.PI / 4;
