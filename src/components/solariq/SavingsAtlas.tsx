@@ -534,7 +534,7 @@ export function SavingsAtlas() {
                   );
                 })()}
 
-                {stateZipEntries && stateProj && stateZipEntries.map((z) => {
+                {stateZipEntries && stateProj && [...stateZipEntries].reverse().map((z) => {
                   const [lat, lon] = z.centroid;
                   const pt = stateProj([lon, lat]);
                   if (!pt) return null;
