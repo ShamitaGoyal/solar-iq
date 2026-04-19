@@ -6,4 +6,8 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig();
+// Vercel does not run Cloudflare Workers. Disable the Cloudflare build plugin so
+// the build output is a standard client bundle suitable for SPA hosting.
+export default defineConfig({
+  cloudflare: false,
+});
