@@ -68,14 +68,14 @@ export function SolarIQPage() {
 
       {/* HERO */}
       <section className="grid min-h-[calc(100vh-52px)] grid-cols-1 bg-[color:var(--siq-cream)] md:grid-cols-2">
-        <div className="flex flex-col justify-center px-13 pb-13 pt-[7rem]">
+        <div className="flex flex-col justify-center px-13 pb-13 pt-[4rem]">
           <div className="siq-fade-in mb-7 inline-flex w-fit items-center gap-[7px] rounded-full border border-[rgba(53,88,60,0.22)] px-4 py-1.5">
             <div className="h-[5px] w-[5px] shrink-0 rounded-full bg-[color:var(--siq-fg)]" />
             <span className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-deep)]">
               Solar intelligence
             </span>
           </div>
-          <h1 className="siq-fade-in mb-5 font-serif-siq text-[56px] font-normal leading-[1.1] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
+          <h1 className="siq-fade-in mb-5 font-serif-siq text-[68px] font-normal leading-[1.05] tracking-[-0.015em] text-[color:var(--siq-fg-deep)]">
             Your home could
             <br />
             run on <em className="not-italic italic text-[color:var(--siq-fg)]">sunlight.</em>

@@ -62,21 +62,21 @@ export function IsoHouse() {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), 0xd8e8d8, 0, -0.09, 0, false, true);
-    mk(new T.BoxGeometry(0.9, 0.04, 2.5), 0xeae0c4, 0, 0.03, 2.2, false, false);
-    mk(new T.BoxGeometry(4.2, 0.18, 3.5), 0xdccfb4, 0, 0.09, 0);
-    mk(new T.BoxGeometry(4.0, 2.1, 3.3), 0xf4ecdc, 0, 1.14, 0);
-    mk(new T.BoxGeometry(4.2, 0.12, 3.5), 0xd6b898, 0, 2.25, 0);
+    mk(new T.CylinderGeometry(3.8, 4.0, 0.18, 32, 1), 0x70a771, 0, -0.09, 0, false, true);
+    mk(new T.BoxGeometry(0.9, 0.04, 2.5), 0xf2ead0, 0, 0.03, 2.2, false, false);
+    mk(new T.BoxGeometry(4.2, 0.18, 3.5), 0xe8d4a8, 0, 0.09, 0);
+    mk(new T.BoxGeometry(4.0, 2.1, 3.3), 0xffd866, 0, 1.14, 0);
+    mk(new T.BoxGeometry(4.2, 0.12, 3.5), 0xe89060, 0, 2.25, 0);
 
     const rg = new T.CylinderGeometry(0, 2.7, 1.45, 4, 1);
     rg.rotateY(Math.PI / 4);
-    const roofM = new T.Mesh(rg, new T.MeshLambertMaterial({ color: 0xe89880 }));
+    const roofM = new T.Mesh(rg, new T.MeshLambertMaterial({ color: 0xd96a4a }));
     roofM.position.set(0, 3.02, 0);
     roofM.castShadow = true;
     scene.add(roofM);
     const roofU = new T.Mesh(
       new T.CylinderGeometry(0, 2.75, 1.47, 4, 1),
-      new T.MeshLambertMaterial({ color: 0xc88478 }),
+      new T.MeshLambertMaterial({ color: 0xb5523a }),
     );
     roofU.position.set(0, 3.01, 0);
     roofU.rotation.y = Math.PI / 4;
@@ -132,38 +132,36 @@ export function IsoHouse() {
     addWin(2.07, 1.38, 0.45, Math.PI / 2);
 
     const panelData: [number, number, number][] = [
-      [-0.82, 3.55, -0.55],
-      [0.0, 3.55, -0.55],
-      [0.82, 3.55, -0.55],
-      [-0.82, 3.4, 0.2],
-      [0.0, 3.4, 0.2],
-      [0.82, 3.4, 0.2],
+      [-0.78, 3.55, -0.5],
+      [0.78, 3.55, -0.5],
+      [-0.78, 3.15, 0.4],
+      [0.78, 3.15, 0.4],
     ];
     const panels = panelData.map(([px, py, pz]) => {
       const g = new T.Group();
       const base = new T.Mesh(
-        new T.BoxGeometry(0.72, 0.05, 0.48),
-        new T.MeshLambertMaterial({ color: 0x4a6488 }),
+        new T.BoxGeometry(1.4, 0.06, 0.95),
+        new T.MeshLambertMaterial({ color: 0x3a5a8c }),
       );
       base.castShadow = true;
       g.add(base);
       const frame = new T.Mesh(
-        new T.BoxGeometry(0.74, 0.045, 0.5),
-        new T.MeshLambertMaterial({ color: 0xa8a8a8 }),
+        new T.BoxGeometry(1.44, 0.05, 0.99),
+        new T.MeshLambertMaterial({ color: 0xc8c8c8 }),
       );
-      frame.position.y = -0.003;
+      frame.position.y = -0.005;
       g.add(frame);
-      for (let ci = 0; ci < 3; ci++)
-        for (let cj = 0; cj < 2; cj++) {
+      for (let ci = 0; ci < 4; ci++)
+        for (let cj = 0; cj < 3; cj++) {
           const cell = new T.Mesh(
-            new T.BoxGeometry(0.2, 0.055, 0.19),
-            new T.MeshLambertMaterial({ color: 0x35507c }),
+            new T.BoxGeometry(0.3, 0.065, 0.27),
+            new T.MeshLambertMaterial({ color: 0x2a4a7c }),
           );
-          cell.position.set(-0.22 + ci * 0.22, 0.005, -0.095 + cj * 0.19);
+          cell.position.set(-0.49 + ci * 0.33, 0.005, -0.31 + cj * 0.31);
           g.add(cell);
         }
       g.position.set(px, py, pz);
-      g.rotation.x = -0.4;
+      g.rotation.x = -0.45;
       scene.add(g);
       return g;
     });
@@ -172,14 +170,14 @@ export function IsoHouse() {
       mk(new T.BoxGeometry(0.13, h * 0.5, 0.13), 0xc4b894, x, h * 0.25, z);
       const t1 = new T.Mesh(
         new T.CylinderGeometry(0, r, h * 0.72, 7, 1),
-        new T.MeshLambertMaterial({ color: 0xa8c8a8 }),
+        new T.MeshLambertMaterial({ color: 0x8fc88f }),
       );
       t1.position.set(x, h * 0.9, z);
       t1.castShadow = true;
       scene.add(t1);
       const t2 = new T.Mesh(
         new T.CylinderGeometry(0, r * 0.75, h * 0.58, 7, 1),
-        new T.MeshLambertMaterial({ color: 0x88b090 }),
+        new T.MeshLambertMaterial({ color: 0x70a771 }),
       );
       t2.position.set(x, h * 1.15, z);
       t2.castShadow = true;
@@ -199,7 +197,7 @@ export function IsoHouse() {
     ].forEach(([sx, sz]) => {
       const s = new T.Mesh(
         new T.SphereGeometry(0.24, 8, 6),
-        new T.MeshLambertMaterial({ color: 0xb8d8b8 }),
+        new T.MeshLambertMaterial({ color: 0x9bcb9b }),
       );
       s.position.set(sx, 0.2, sz);
       s.castShadow = true;
