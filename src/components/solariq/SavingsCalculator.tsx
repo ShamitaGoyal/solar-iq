@@ -1,9 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { ZIP_DATA } from "@/data/zipData";
 import { ZIP_CITY_FALLBACK } from "@/data/zipCityFallback";
 import { SavingsCalculatorTreeGarden } from "./SavingsCalculatorTreeGarden";
-
-type ZipRow = (typeof ZIP_DATA)[string];
+import type { ZipData, ZipRow } from "@/components/solariq/zipTypes";
 
 export type ZipLookup =
   | { status: "empty" }
@@ -33,18 +31,18 @@ const fmt = (n: number) => Math.round(n).toLocaleString();
 const COUNT_DURATION_MS = 880;
 
 /** Resolve ZIP input to dataset row (direct, city fallback, or miss). */
-export function computeZipLookup(zip: string): ZipLookup {
+export function computeZipLookup(zip: string, zipData: ZipData): ZipLookup {
   const z = zip.trim();
   if (z.length < 5) return { status: "empty" };
 
-  const direct = ZIP_DATA[z] ?? ZIP_DATA[z.padStart(5, "0")];
-  const directKey = ZIP_DATA[z] ? z : z.padStart(5, "0");
+  const direct = zipData[z] ?? zipData[z.padStart(5, "0")];
+  const directKey = zipData[z] ? z : z.padStart(5, "0");
   if (direct) return { status: "found", key: directKey, data: direct };
 
   const cityState = ZIP_CITY_FALLBACK[z] ?? ZIP_CITY_FALLBACK[z.padStart(5, "0")];
   if (cityState) {
     const [city, state] = cityState.split(",");
-    const match = Object.entries(ZIP_DATA).find(
+    const match = Object.entries(zipData).find(
       ([, d]) => d.city.toLowerCase() === city.toLowerCase() && d.state === state,
     );
     if (match) {
@@ -112,8 +110,21 @@ function useSavingsCalculator() {
   const countRafRef = useRef<number | null>(null);
   const displayAnnualRef = useRef(0);
   const prevZipKeyAnimRef = useRef<string | null>(null);
+  const [zipData, setZipData] = useState<ZipData | null>(null);
+  const zipDataLoadingRef = useRef(false);
 
-  const lookup = useMemo(() => computeZipLookup(zip), [zip]);
+  useEffect(() => {
+    if (zipData || zipDataLoadingRef.current) return;
+    // Load the big ZIP dataset only when this component is mounted.
+    zipDataLoadingRef.current = true;
+    import("@/data/zipData")
+      .then((m) => setZipData(m.ZIP_DATA as ZipData))
+      .finally(() => {
+        zipDataLoadingRef.current = false;
+      });
+  }, [zipData]);
+
+  const lookup = useMemo(() => (zipData ? computeZipLookup(zip, zipData) : { status: "empty" as const }), [zip, zipData]);
   const result = useMemo(() => computeSavingsResult(lookup, bill), [lookup, bill]);
   const { text: zipStatusText, color: zipStatusColor } = useMemo(
     () => zipStatusFromLookup(zip, lookup),

@@ -1,14 +1,26 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { Suspense, lazy, useEffect, useRef, useState, type CSSProperties } from "react";
 import { IsoHouse } from "@/components/solariq/IsoHouse";
 import { SolarIqAtlasBridgeSplit } from "@/components/solariq/SolarIqAtlasBridgeSplit";
 import { SolarIqIntroSplit } from "@/components/solariq/SolarIqIntroSplit";
 import { SolarIqLineSplitReveal } from "@/components/solariq/SolarIqLineSplitReveal";
 import { SolarIqTypingHeadline } from "@/components/solariq/SolarIqTypingHeadline";
-import { SavingsCalculator } from "@/components/solariq/SavingsCalculator";
-import { CityRankings } from "@/components/solariq/CityRankings";
-import { Seasonality } from "@/components/solariq/Seasonality";
-import { SavingsAtlas } from "@/components/solariq/SavingsAtlas";
-import { LineRace } from "@/components/solariq/LineRace";
+import { LazyMount } from "@/components/solariq/LazyMount";
+
+const LazySavingsAtlas = lazy(() =>
+  import("@/components/solariq/SavingsAtlas").then((m) => ({ default: m.SavingsAtlas })),
+);
+const LazySavingsCalculator = lazy(() =>
+  import("@/components/solariq/SavingsCalculator").then((m) => ({ default: m.SavingsCalculator })),
+);
+const LazyCityRankings = lazy(() =>
+  import("@/components/solariq/CityRankings").then((m) => ({ default: m.CityRankings })),
+);
+const LazySeasonality = lazy(() =>
+  import("@/components/solariq/Seasonality").then((m) => ({ default: m.Seasonality })),
+);
+const LazyLineRace = lazy(() =>
+  import("@/components/solariq/LineRace").then((m) => ({ default: m.LineRace })),
+);
 
 // Nav dots map to visualization anchors; idx is the real section index in the scroll container.
 // Order: Hero(0) T1(1) T2(2) Atlas(3) T3(4) Calculator(5) T4(6) Cities(7) T5(8) Seasons(9) T6(10) LineRace(11)
@@ -242,7 +254,14 @@ export function SolarIQPage() {
         {/* ── 3: ATLAS ── */}
         <section ref={setRef(3)} className="siq-snap-section bg-[color:var(--siq-cream)]">
           <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
-            <SavingsAtlas />
+            <LazyMount
+              className="min-h-0 flex-1"
+              fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading atlas…</div>}
+            >
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading atlas…</div>}>
+                <LazySavingsAtlas />
+              </Suspense>
+            </LazyMount>
           </div>
         </section>
 
@@ -275,7 +294,14 @@ export function SolarIQPage() {
         {/* ── 5: CALCULATOR ── */}
         <section ref={setRef(5)} className="siq-snap-section bg-[color:var(--siq-cream)]">
           <div className="siq-section-content h-full pt-12">
-            <SavingsCalculator />
+            <LazyMount
+              className="h-full"
+              fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading calculator…</div>}
+            >
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading calculator…</div>}>
+                <LazySavingsCalculator />
+              </Suspense>
+            </LazyMount>
           </div>
         </section>
 
@@ -299,7 +325,14 @@ export function SolarIQPage() {
         {/* ── 7: CITY RANKINGS ── */}
         <section ref={setRef(7)} className="siq-snap-section bg-[color:var(--siq-cream)]">
           <div className="siq-section-content flex h-full min-h-0 flex-col pt-12">
-            <CityRankings />
+            <LazyMount
+              className="min-h-0 flex-1"
+              fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading city rankings…</div>}
+            >
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading city rankings…</div>}>
+                <LazyCityRankings />
+              </Suspense>
+            </LazyMount>
           </div>
         </section>
 
@@ -391,7 +424,14 @@ export function SolarIQPage() {
         {/* ── 9: SEASONALITY ── */}
         <section ref={setRef(9)} className="siq-snap-section" style={{ background: "#35583C" }}>
           <div className="siq-section-content h-full pt-12">
-            <Seasonality />
+            <LazyMount
+              className="h-full"
+              fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-white/45">Loading seasonality…</div>}
+            >
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-white/45">Loading seasonality…</div>}>
+                <LazySeasonality />
+              </Suspense>
+            </LazyMount>
           </div>
         </section>
 
@@ -419,7 +459,14 @@ export function SolarIQPage() {
         {/* ── 11: LINE RACE ── */}
         <section ref={setRef(11)} className="siq-snap-section flex flex-col bg-[color:var(--siq-cream)]">
           <div className="siq-section-content flex min-h-0 flex-1 flex-col pt-12">
-            <LineRace />
+            <LazyMount
+              className="min-h-0 flex-1"
+              fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading installers…</div>}
+            >
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-[13px] uppercase tracking-[0.12em] text-[color:var(--siq-fg-muted)]">Loading installers…</div>}>
+                <LazyLineRace />
+              </Suspense>
+            </LazyMount>
           </div>
           {/* Footer inside last section */}
           <footer className="pt-[2rem] flex items-center justify-between px-10 py-3">

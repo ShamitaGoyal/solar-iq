@@ -3,8 +3,7 @@ import { geoAlbersUsa, geoPath, geoMercator } from "d3-geo";
 import { feature, mesh } from "topojson-client";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import { STATE_SAVINGS_DATA } from "@/data/stateSavings";
-import { ZIP_DATA } from "@/data/zipData";
-import { ZIP_CENTROIDS } from "@/data/zipCentroids";
+import type { ZipCentroids, ZipData } from "@/components/solariq/zipTypes";
 
 const FIPS_TO_AB: Record<string, string> = {
   "01": "AL", "02": "AK", "04": "AZ", "05": "AR", "06": "CA", "08": "CO", "09": "CT",
@@ -76,6 +75,9 @@ export function SavingsAtlas() {
   const dragStart = useRef<{ mx: number; my: number; px: number; py: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [zipData, setZipData] = useState<ZipData | null>(null);
+  const [zipCentroids, setZipCentroids] = useState<ZipCentroids | null>(null);
+  const drilldownLoadingRef = useRef(false);
   /** Debounce list-row hover so scrubbing the Top 10 does not flicker the map / sidebar. */
   const listHoverTimersRef = useRef<{ enter: ReturnType<typeof setTimeout> | null; leave: ReturnType<typeof setTimeout> | null }>({
     enter: null,
@@ -201,11 +203,11 @@ export function SavingsAtlas() {
 
   // State drilldown data
   const stateZipEntries = useMemo(() => {
-    if (!selectedState) return null;
-    const entries = Object.entries(ZIP_DATA)
+    if (!selectedState || !zipData || !zipCentroids) return null;
+    const entries = Object.entries(zipData)
       .filter(([, d]) => d.state === selectedState)
       .map(([zip, d]) => {
-        const centroid = ZIP_CENTROIDS[zip];
+        const centroid = zipCentroids[zip];
         const savings = Math.round(d.kwh * d.rate);
         return { zip, ...d, savings, centroid: centroid ?? null };
       })
@@ -213,6 +215,22 @@ export function SavingsAtlas() {
       .sort((a, b) => b.savings - a.savings);
     return entries as Array<{ zip: string; city: string; state: string; rate: number; kwh: number; offset: number; kw: number; tilt: number; savings: number; centroid: [number, number] }>;
   }, [selectedState]);
+
+  useEffect(() => {
+    if (!selectedState) return;
+    if (zipData && zipCentroids) return;
+    if (drilldownLoadingRef.current) return;
+
+    drilldownLoadingRef.current = true;
+    Promise.all([import("@/data/zipData"), import("@/data/zipCentroids")])
+      .then(([zd, zc]) => {
+        setZipData(zd.ZIP_DATA as ZipData);
+        setZipCentroids(zc.ZIP_CENTROIDS as ZipCentroids);
+      })
+      .finally(() => {
+        drilldownLoadingRef.current = false;
+      });
+  }, [selectedState, zipData, zipCentroids]);
 
   // Projection fitted to state ZIP centroids
   const stateProj = useMemo(() => {
@@ -632,12 +650,12 @@ export function SavingsAtlas() {
                   </div>
                 </div>
               </div>
-              <div className="mt-5 flex flex-col gap-3 py-1 pl-0.5 pr-2 md:min-h-0 md:flex-1">
+              <div className="mt-5 flex flex-col gap-3 py-1 pl-0.5 pr-2 pb-2 md:min-h-0 md:flex-1">
                 <div className="shrink-0 text-[13px] uppercase tracking-[0.17em] text-[color:var(--siq-fg-muted)]">
                   Top 10 · Per Capita
                 </div>
-                <div className="max-h-[min(320px,52vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5 md:max-h-none md:min-h-0 md:flex-1">
-                  <div className="space-y-2 pb-3">
+                <div className="max-h-[min(440px,62vh)] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pr-0.5 md:max-h-none md:min-h-0 md:flex-1">
+                  <div className="space-y-2 pb-6">
                     {ranked.map(([state, v], i) => {
                       const w = (v.pc / max) * 100;
                       return (
