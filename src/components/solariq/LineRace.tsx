@@ -30,7 +30,7 @@ const Y_MAX = YEARS[YEARS.length - 1];
 const YEAR_SPAN = Y_MAX - Y_MIN;
 
 /** Full timeline scrub duration (linear “counter” over the year range). */
-const RACE_TOTAL_MS = 16_000;
+const RACE_TOTAL_MS = 11_000;
 
 const fmt = (n: number) => (n >= 10000 ? `${Math.round(n / 1000)}k` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 
