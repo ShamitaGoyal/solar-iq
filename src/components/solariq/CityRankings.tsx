@@ -13,7 +13,7 @@ const fmtNum = (n: number) => (n >= 1000 ? (n / 1000).toFixed(1) + "k" : n.toLoc
 const fmtKw = (n: number) => (n >= 1000 ? (n / 1000).toFixed(1) + " MW" : n.toFixed(0) + " kW");
 
 export function CityRankings() {
-  const [state, setState] = useState("");
+  const [state, setState] = useState("CA");
   const [visibleRows, setVisibleRows] = useState(0);
   const [barFills, setBarFills] = useState<number[]>([]);
   const [stripVisible, setStripVisible] = useState(false);
