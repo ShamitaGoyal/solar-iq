@@ -246,6 +246,30 @@
   80% { transform: translate(-14px, 10px) scale(0.95); }
   100% { transform: translate(0, 0) scale(1); }
 }
+/* Marching “dots” along SVG ring (stroke-dash period must match keyframe offset). */
+@keyframes siq-dotted-orbit-march {
+  to {
+    stroke-dashoffset: -11.5;
+  }
+}
+.siq-dotted-orbit-ring {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 2.5 9;
+  stroke-dashoffset: 0;
+  animation-name: siq-dotted-orbit-march;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-duration: var(--siq-dot-march-duration, 6s);
+}
+.siq-dotted-orbit-ring--rev {
+  animation-direction: reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .siq-dotted-orbit-ring {
+    animation: none;
+  }
+}
 @keyframes siq-bounce-left {
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(-10px); }
