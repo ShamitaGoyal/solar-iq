@@ -280,7 +280,7 @@ function SavingsCalculatorInputsColumn({
       <div className="flex-1 px-11 py-10">
         <div className="mb-9">
           <label className="mb-3 block text-[12px] uppercase tracking-[0.18em] text-[color:var(--siq-fg-muted)]">
-            Your ZIP Code
+            Target ZIP Code
           </label>
           <div className="flex items-stretch border border-[rgba(53,88,60,0.2)]">
             <input
@@ -347,7 +347,7 @@ function SavingsCalculatorResultsColumn({
         <div className="relative flex h-full flex-col items-start justify-center gap-4">
           <div className="text-[28px] text-white/20 [animation:siq-bounce-left_1.8s_ease-in-out_infinite]">←</div>
           <p className="max-w-[260px] text-[13px] leading-[1.75] text-white/40">
-            Enter your ZIP code and drag the slider to see your personalized solar savings estimate.
+            Enter a target ZIP code and adjust the monthly bill to model solar savings for any market.
           </p>
         </div>
       ) : (
@@ -364,10 +364,10 @@ export function SavingsCalculator() {
     <section className="siq-fade-in flex h-full flex-col border-b border-[rgba(53,88,60,0.1)] px-12 py-6">
       <div className="mb-4 flex items-baseline justify-between border-b border-[rgba(53,88,60,0.1)] pb-4">
         <h2 className="font-sans-siq text-[clamp(28px,3.5vw,48px)] font-normal leading-[1.05]">
-          Potential <em className="not-italic italic text-[color:var(--siq-fg)]">Savings</em> Calculator
+          Potential Customer <em className="not-italic italic text-[color:var(--siq-fg)]">Savings</em> Calculator
         </h2>
         <p className="max-w-[340px] text-right text-[14px] leading-[1.6] text-[color:var(--siq-fg-muted)]">
-          Enter your ZIP and monthly bill — we match you to real solar performance data.
+          Enter a target ZIP and monthly bill — matched to real solar performance data by market.
         </p>
       </div>
 
