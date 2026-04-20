@@ -1,4 +1,4 @@
-import { lazy, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { NAV_SECTIONS } from "./navdots/navSections";
 import { NavDots } from "./navdots/NavDots";
 import { useSolarIQScrollSpy } from "./ScrollSpy";
@@ -15,22 +15,11 @@ import { SeasonalitySection } from "./sections/SeasonalitySection";
 import { TransitionIntroSection } from "./sections/TransitionIntroSection";
 import { Navbar } from "./sections/Navbar";
 import { HeroSection } from "./sections/HeroSection";
-
-const LazySavingsAtlas = lazy(() =>
-  import("@/components/section-visuals/SavingsAtlas").then((m) => ({ default: m.SavingsAtlas })),
-);
-const LazySavingsCalculator = lazy(() =>
-  import("@/components/section-visuals/SavingsCalculator").then((m) => ({ default: m.SavingsCalculator })),
-);
-const LazyCityRankings = lazy(() =>
-  import("@/components/section-visuals/CityRankings").then((m) => ({ default: m.CityRankings })),
-);
-const LazySeasonality = lazy(() =>
-  import("@/components/section-visuals/Seasonality").then((m) => ({ default: m.Seasonality })),
-);
-const LazyLineRace = lazy(() =>
-  import("@/components/section-visuals/LineRace").then((m) => ({ default: m.LineRace })),
-);
+import { SavingsAtlas } from "@/components/section-visuals/SavingsAtlas";
+import { SavingsCalculator } from "@/components/section-visuals/SavingsCalculator";
+import { CityRankings } from "@/components/section-visuals/CityRankings";
+import { Seasonality } from "@/components/section-visuals/Seasonality";
+import { LineRace } from "@/components/section-visuals/LineRace";
 
 export function SolarIQPage() {
   const { scrollRef, setSectionRef: setRef, scrollToSection, activeNavIdx } = useSolarIQScrollSpy(NAV_SECTIONS);
@@ -72,31 +61,31 @@ export function SolarIQPage() {
         <AtlasBridgeSection setRef={setRef} observeTargetRef={t2SectionRef} />
         {/* ── 3: ATLAS — Savings Atlas (scrollable viz) ── */}
         <AtlasSection setRef={setRef}>
-          <LazySavingsAtlas />
+          <SavingsAtlas />
         </AtlasSection>
         {/* ── 4: TRANSITION — Zero in on cities (cream, left) ── */}
         <CitiesBridgeSection setRef={setRef} observeTargetRef={t4SectionRef} />
         {/* ── 5: CALCULATOR — Savings calculator ── */}
         <CalculatorSection setRef={setRef}>
-          <LazySavingsCalculator />
+          <SavingsCalculator />
         </CalculatorSection>
         {/* ── 6: TRANSITION — Calculator → cities (cream, centered) ── */}
         <CalculatorToCitiesSection setRef={setRef} observeTargetRef={t6SectionRef} />
         {/* ── 7: CITY RANKINGS — Drilldowns + rankings (scrollable) ── */}
         <CityRankingsSection setRef={setRef}>
-          <LazyCityRankings />
+          <CityRankings />
         </CityRankingsSection>
         {/* ── 8: TRANSITION — Capture customers (tan, left) ── */}
         <SeasonalityBridgeSection setRef={setRef} observeTargetRef={t8SectionRef} />
         {/* ── 9: SEASONALITY — Month-by-month volume trends ── */}
         <SeasonalitySection setRef={setRef}>
-          <LazySeasonality />
+          <Seasonality />
         </SeasonalitySection>
         {/* ── 10: TRANSITION — Seasons → installers (dark, left) ── */}
         <InstallersBridgeSection setRef={setRef} observeTargetRef={t10SectionRef} />
         {/* ── 11: INSTALLERS — Line race + footer ── */}
         <LineRaceSection setRef={setRef}>
-          <LazyLineRace />
+          <LineRace />
         </LineRaceSection>
       </div>
 
