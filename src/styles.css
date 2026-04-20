@@ -167,13 +167,18 @@
 /* ============ Scroll snap ============ */
 .siq-scroll-root {
   height: 100vh;
+  height: 100dvh;
   overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
 }
 
 .siq-snap-section {
   height: 100vh;
+  height: 100dvh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   overflow: hidden;
@@ -183,8 +188,10 @@
 /* Allow a snap section to scroll internally when content exceeds viewport */
 .siq-snap-section--scrollable {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   height: auto;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ============ Section enter animation ============ */
@@ -198,10 +205,6 @@
   opacity: 1;
   transform: translateY(0);
 }
-/* stagger children */
-.siq-section-content:nth-child(2) { transition-delay: 0.07s; }
-.siq-section-content:nth-child(3) { transition-delay: 0.14s; }
-.siq-section-content:nth-child(4) { transition-delay: 0.21s; }
 
 /* ============ Legacy fade-in (charts, inline elements) ============ */
 .siq-fade-in {
@@ -273,6 +276,14 @@
   animation-direction: reverse;
 }
 @media (prefers-reduced-motion: reduce) {
+  .siq-scroll-root {
+    scroll-behavior: auto;
+  }
+  .siq-section-content,
+  .siq-fade-in {
+    transition: none;
+    transform: none;
+  }
   .siq-dotted-orbit-ring {
     animation: none;
   }
@@ -284,4 +295,14 @@
 @keyframes siq-pulse {
   from { opacity: 0.4; }
   to { opacity: 1; }
+}
+
+/* ============ SolarIQ scroll cue keyframes ============ */
+@keyframes scrollBounce {
+  0%, 100% { transform: scaleY(1); opacity: 0.5; }
+  50% { transform: scaleY(1.4); opacity: 0.8; }
+}
+@keyframes scrollTextBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
 }

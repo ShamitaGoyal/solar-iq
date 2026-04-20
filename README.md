@@ -50,8 +50,7 @@ Traces each visualization on the site back to the exact data columns that power 
 
 ### Web Development
 We used the following tools to design, build, and deploy our website:
-- React 19 + TypeScript, TanStack Start (SSR), TanStack Router
-- Vite
+- React 19 + TypeScript, Vite (single-page app)
 - Tailwind CSS
 - Apache ECharts
 - D3-geo + TopoJSON (choropleth maps)

@@ -1,13 +1,39 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, cloudflare (build-only),
-//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
-//     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... } }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 
-// Vercel does not run Cloudflare Workers. Disable the Cloudflare build plugin so
-// the build output is a standard client bundle suitable for SPA hosting.
+// Plain Vite SPA (no TanStack Start / SSR). Output matches `vercel.json` → `dist/client`.
 export default defineConfig({
-  cloudflare: false,
+  plugins: [react(), tailwindcss(), tsconfigPaths({ projects: ["./tsconfig.json"] })],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
+    dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+  },
+  server: {
+    host: "::",
+    port: 8080,
+  },
+  build: {
+    outDir: "dist/client",
+    emptyOutDir: true,
+    /** Geo JSON / permit extracts are legitimately large; avoid noisy Rollup warnings. */
+    chunkSizeWarningLimit: 3600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("three")) return "three";
+          if (id.includes("echarts") || id.includes("zrender")) return "echarts";
+          if (id.includes("gsap")) return "gsap";
+          if (id.includes("recharts")) return "recharts";
+          if (id.includes("d3-") || id.includes("topojson")) return "geo";
+          return undefined;
+        },
+      },
+    },
+  },
 });
