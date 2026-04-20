@@ -36,7 +36,7 @@ The platform focuses on customer acquisition as its primary value: helping Zenpo
 - **US Census ZCTA Population Data**: Household counts per ZIP code used to project city-level full-adoption scenarios
 - **US Census ZIP Code Shapefiles / GeoJSON**: Geographic polygon boundaries for all ZIP codes, used to build the choropleth maps
 
-#### Data Pipeline**
+#### Data Pipeline
 Our Python pipeline (`pipeline.py`) runs several analytical queries against the cleaned and merged data to calculate savings and other metrics.
 
 The savings formula is: `avg_kw x tilt_annual x 365 x 0.80 x electricity_rate`, where tilt_annual is the optimal-tilt irradiance from NREL serving as a proxy for peak sun hours, and 0.80 accounts for real-world system losses.
