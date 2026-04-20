@@ -6,7 +6,7 @@ A lot of people in our own families have wondered whether switching to solar is 
 
 ## Problem Statement
 
-We took on the Zenpower track with the goal of designing an interactive, responsive, and visually rich analytics platform that helps Zenpower expand their business operations. The core challenge was turning raw permit records, solar resource data, and electricity rates into clear, actionable insights about where solar demand exists, where it is growing, and how to quantify the savings potential for any given customer or region. We prioritized UI/UX throughout, because data that is hard to read does not get used.
+We took on the Zenpower track intending to design an interactive, responsive, and visually rich analytics platform that helps Zenpower expand its business operations. The core challenge was turning raw permit records, solar resource data, and electricity rates into clear, actionable insights about where solar demand exists, where it is growing, and how to quantify the savings potential for any given customer or region. We prioritized UI/UX throughout, because data that is hard to read does not get used.
 
 ## What It Does 
 
@@ -86,7 +86,7 @@ We would love to connect with the Zenpower team to better understand their speci
 - **NREL API (Solar Irradiance):** https://developer.nrel.gov/docs/solar/solar-resource-v1/
 
 ## Contributers
-Shamita Goyal
-Nicole Chen
-Tanvi Vidyala
-Palina Volskaya
+Shamita Goyal <br>
+Nicole Chen <br>
+Tanvi Vidyala <br>
+Palina Volskaya <br>
