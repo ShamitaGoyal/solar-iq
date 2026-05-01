@@ -170,7 +170,7 @@ function lineRaceChartOption(
       itemHeight: 10,
       itemGap: 22,
       textStyle: { fontFamily: "DM Mono, monospace", fontSize: 10, color: "#4a4a40" },
-      data: COMPANIES.map((c) => LABELS[c]),
+      data: COMPANIES.map((c) => ({ name: LABELS[c], itemStyle: { color: COLORS[c] } })),
     },
     series,
   };
