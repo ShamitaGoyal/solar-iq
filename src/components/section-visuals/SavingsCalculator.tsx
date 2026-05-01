@@ -16,17 +16,40 @@ export type ZipLookup =
   }
   | { status: "not-found" };
 
+export type ForecastBands = {
+  p10: number;
+  p50: number;
+  p90: number;
+  variancePct: number;
+};
+
 export type SavingsResult = {
   d: ZipRow;
   key: string;
   annual: number;
   monthly: number;
+  bands: ForecastBands;
   isFallback: boolean;
   originalCity?: string;
   originalZip?: string;
 };
 
 const fmt = (n: number) => Math.round(n).toLocaleString();
+
+/**
+ * Variance is driven by local irradiance stability: sunnier climates (high peak sun hours)
+ * have more predictable year-over-year output than cloudy ones. US range ≈ 3.0–6.5 hrs.
+ */
+function computeForecastBands(annual: number, tilt: number): ForecastBands {
+  const t = Math.max(0, Math.min(1, (tilt - 3.0) / (6.5 - 3.0)));
+  const variancePct = 0.22 - t * 0.10; // 22% (low sun) → 12% (high sun)
+  return {
+    p10: annual * (1 - variancePct),
+    p50: annual,
+    p90: annual * (1 + variancePct),
+    variancePct,
+  };
+}
 
 const COUNT_DURATION_MS = 880;
 
@@ -71,6 +94,7 @@ export function computeSavingsResult(lookup: ZipLookup, bill: number): SavingsRe
     key: lookup.key,
     annual,
     monthly: annual / 12,
+    bands: computeForecastBands(annual, d.tilt),
     isFallback: lookup.status === "city-fallback",
     originalCity: lookup.status === "city-fallback" ? lookup.originalCity : undefined,
     originalZip: lookup.status === "city-fallback" ? lookup.originalZip : undefined,
@@ -198,6 +222,43 @@ function useSavingsCalculator() {
   };
 }
 
+function ForecastRangeBar({ bands }: { bands: ForecastBands }) {
+  const { p10, p50, p90, variancePct } = bands;
+  // Track spans 0 → 2×p50; inner band is p10→p90 (always symmetric around 50%)
+  const leftPct = ((p10 / (2 * p50)) * 100).toFixed(2);
+  const rightPct = (100 - (p90 / (2 * p50)) * 100).toFixed(2);
+
+  return (
+    <div className="mb-7">
+      <div className="mb-3 flex items-baseline gap-2">
+        <span className="text-[12px] uppercase tracking-[0.18em] text-white/40">Forecast Range</span>
+        <span className="text-[11px] text-white/25">±{(variancePct * 100).toFixed(0)}% irradiance variability</span>
+      </div>
+      <div className="relative mb-4 h-[5px] w-full overflow-hidden rounded-full bg-white/[0.08]">
+        <div
+          className="absolute top-0 h-full rounded-full bg-[#a8e890]/30"
+          style={{ left: `${leftPct}%`, right: `${rightPct}%` }}
+        />
+        <div className="absolute left-1/2 top-1/2 h-[11px] w-[11px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#a8e890] ring-2 ring-black/30" />
+      </div>
+      <div className="flex justify-between">
+        <div>
+          <div className="font-sans-siq text-[18px] text-white/50">${fmt(p10)}</div>
+          <div className="mt-0.5 text-[11px] uppercase tracking-[0.12em] text-white/28">P10 · Low</div>
+        </div>
+        <div className="text-center">
+          <div className="font-sans-siq text-[18px] text-[#a8e890]/75">${fmt(p50)}</div>
+          <div className="mt-0.5 text-[11px] uppercase tracking-[0.12em] text-white/28">P50 · Median</div>
+        </div>
+        <div className="text-right">
+          <div className="font-sans-siq text-[18px] text-white/50">${fmt(p90)}</div>
+          <div className="mt-0.5 text-[11px] uppercase tracking-[0.12em] text-white/28">P90 · High</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SavingsCalculatorHeroOrbs() {
   return (
     <>
@@ -228,7 +289,7 @@ function SavingsCalculatorResultsBody({
           </div>
         )}
       </div>
-      <div className="mb-10">
+      <div className="mb-6">
         <div className="mb-2 text-[12px] uppercase tracking-[0.15em] text-white/40">Estimated Annual Savings</div>
         <div
           key={pulseKey}
@@ -238,6 +299,8 @@ function SavingsCalculatorResultsBody({
           {fmt(displayAnnual)}
         </div>
       </div>
+
+      <ForecastRangeBar bands={result.bands} />
 
       <div className="relative mb-7 grid grid-cols-2 border border-white/10">
         {[

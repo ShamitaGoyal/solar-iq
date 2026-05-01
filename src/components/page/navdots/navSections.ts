@@ -19,5 +19,7 @@ export const NAV_SECTIONS: NavSection[] = [
   { label: "Seasonality", idx: 9 },
   { label: "Installers bridge", idx: 10 },
   { label: "Installers", idx: 11 },
+  { label: "Opportunity bridge", idx: 12 },
+  { label: "Opportunity", idx: 13 },
 ];
 

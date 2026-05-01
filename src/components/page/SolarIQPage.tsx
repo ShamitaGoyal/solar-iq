@@ -10,6 +10,8 @@ import { CitiesBridgeSection } from "./sections/CitiesBridgeSection";
 import { CityRankingsSection } from "./sections/CityRankingsSection";
 import { InstallersBridgeSection } from "./sections/InstallersBridgeSection";
 import { LineRaceSection } from "./sections/LineRaceSection";
+import { OpportunityBridgeSection } from "./sections/OpportunityBridgeSection";
+import { OpportunitySection } from "./sections/OpportunitySection";
 import { SeasonalityBridgeSection } from "./sections/SeasonalityBridgeSection";
 import { SeasonalitySection } from "./sections/SeasonalitySection";
 import { TransitionIntroSection } from "./sections/TransitionIntroSection";
@@ -20,6 +22,7 @@ import { SavingsCalculator } from "@/components/section-visuals/SavingsCalculato
 import { CityRankings } from "@/components/section-visuals/CityRankings";
 import { Seasonality } from "@/components/section-visuals/Seasonality";
 import { LineRace } from "@/components/section-visuals/LineRace";
+import { OpportunityIndex } from "@/components/section-visuals/OpportunityIndex";
 
 export function SolarIQPage() {
   const { scrollRef, setSectionRef: setRef, scrollToSection, activeNavIdx } = useSolarIQScrollSpy(NAV_SECTIONS);
@@ -30,6 +33,7 @@ export function SolarIQPage() {
   const t6SectionRef = useRef<HTMLElement | null>(null);
   const t8SectionRef = useRef<HTMLElement | null>(null);
   const t10SectionRef = useRef<HTMLElement | null>(null);
+  const t12SectionRef = useRef<HTMLElement | null>(null);
   const [zip, setZip] = useState("");
   const [billIn, setBillIn] = useState("");
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -83,10 +87,16 @@ export function SolarIQPage() {
         </SeasonalitySection>
         {/* ── 10: TRANSITION — Seasons → installers (dark, left) ── */}
         <InstallersBridgeSection setRef={setRef} observeTargetRef={t10SectionRef} />
-        {/* ── 11: INSTALLERS — Line race + footer ── */}
+        {/* ── 11: INSTALLERS — Line race ── */}
         <LineRaceSection setRef={setRef}>
           <LineRace />
         </LineRaceSection>
+        {/* ── 12: TRANSITION — Opportunity bridge (dark, centered) ── */}
+        <OpportunityBridgeSection setRef={setRef} observeTargetRef={t12SectionRef} />
+        {/* ── 13: OPPORTUNITY — Market opportunity index + footer ── */}
+        <OpportunitySection setRef={setRef}>
+          <OpportunityIndex />
+        </OpportunitySection>
       </div>
 
     </div>
